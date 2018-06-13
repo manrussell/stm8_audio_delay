@@ -1,0 +1,12 @@
+;	STMicroelectronics Workspace file
+
+[Version]
+Keyword=ST7Workspace-V0.7
+
+[Project0]
+Filename=adc_n_gap.stp
+Dependencies=
+[Options]
+ActiveProject=adc_n_gap
+ActiveConfig=Debug
+AddSortedElements=0
