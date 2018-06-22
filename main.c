@@ -69,10 +69,10 @@ void main(void)
 		ADC1_StartConversion();
 		while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
 														 
-		x = (ADC1_GetConversionValue() %1000)-500; // for led brightness proportional to volume
-		//x = (ADC1_GetConversionValue() %1000); // for led knob
+		//x = (ADC1_GetConversionValue() %1000)-500; // for led brightness proportional to volume
+		x = (ADC1_GetConversionValue() %1000); // for led knob
 		ADC1_ClearFlag(ADC1_FLAG_EOC);
-		
+	
 		TIM2_SetCompare1(x);
 		
 	}
