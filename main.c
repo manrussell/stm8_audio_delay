@@ -69,20 +69,11 @@ void main(void)
 		ADC1_StartConversion();
 		while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
 														 
-		x = ADC1_GetConversionValue();
+		x = (ADC1_GetConversionValue() %1000)-500; // for led brightness proportional to volume
+		//x = (ADC1_GetConversionValue() %1000); // for led knob
 		ADC1_ClearFlag(ADC1_FLAG_EOC);
 		
-		for(pwm_duty = 0; pwm_duty < 1000; pwm_duty += 10)
-		{
-				 TIM2_SetCompare1(pwm_duty);
-				 delay_ms(10);
-		}
-
-		for(pwm_duty = 1000; pwm_duty > 0; pwm_duty -= 10)
-		{
-				 TIM2_SetCompare1(pwm_duty);
-				 delay_ms(10);
-		}
+		TIM2_SetCompare1(x);
 		
 	}
   
@@ -116,7 +107,7 @@ void clock_setup(void)
 
 void GPIO_setup(void)
 {                               
-  GPIO_DeInit(GPIOC);
+  //GPIO_DeInit(GPIOC);
   //GPIO_Init(GPIOC, ((GPIO_Pin_TypeDef)GPIO_PIN_5 | GPIO_PIN_6), GPIO_MODE_OUT_PP_HIGH_FAST);
   
   //adc pin b0
@@ -151,12 +142,6 @@ void TIM2_setup(void)
   TIM2_DeInit();
   TIM2_TimeBaseInit(TIM2_PRESCALER_32, 1000);
   TIM2_OC1Init(TIM2_OCMODE_PWM1, TIM2_OUTPUTSTATE_ENABLE, 1000, TIM2_OCPOLARITY_HIGH);
-
-  //TIM2_OC2Init(TIM2_OCMODE_PWM1, TIM2_OUTPUTSTATE_ENABLE, 1000, /
-  //             TIM2_OCPOLARITY_LOW);
-  //TIM2_OC3Init(TIM2_OCMODE_PWM1, TIM2_OUTPUTSTATE_ENABLE, 1000, /
-  //             TIM2_OCPOLARITY_HIGH);
-               
   TIM2_Cmd(ENABLE);
 
 }
