@@ -55,9 +55,9 @@ void delay_ms(unsigned int  value);
 
 void main(void)
 {
-	uint16_t i = 1;
 	uint16_t x = 8;
-	uint16_t pwm_duty = 0;
+	uint16_t y = 0;
+	//uint16_t pwm_duty = 0;
 	
 	clock_setup();
 	GPIO_setup();
@@ -72,41 +72,39 @@ void main(void)
   /* Infinite loop */
   while (1)
   {
-		//i +=1;
-		
-		ADC1_StartConversion();
-		while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
-														 
-		//x = (ADC1_GetConversionValue() %1000)-500; // for led brightness proportional to volume
-		//x = (ADC1_GetConversionValue() %1000); // for led knob
-		x = ADC1_GetConversionValue(); // for led knob
-		ADC1_ClearFlag(ADC1_FLAG_EOC);
-	
-		//x %= 255;
-		#if 0
-			x = 255;
-			MAX72xx_write(0,x);
+		/*
 			//pwm out
 			//TIM2_SetCompare1(x);
-			
-			x = 0;
-			MAX72xx_write(0,x);
-			
-			x = 128;
-			MAX72xx_write(0,x);
-		#else	
+		*/
+		
+		//#define SAWTOOTH
+		#ifdef SAWTOOTH
+			// saw tooth wave out			
+				y++;
+				y %= 1024;
+				// map function divides range from 1024 down to 255
+				x = 0 + 0.25 *(float)y ;
+						
+		#else
+			ADC1_StartConversion();
+			while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
+		
+			x = ADC1_GetConversionValue(); // for led knob
+			ADC1_ClearFlag(ADC1_FLAG_EOC);
+		
+			// map function
 			// (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 			// input range 0-1024 out range 0-255 therefore
-			x = (x - 0) * (255 - 0) / (1024 - 0) + 0; 
-			
-			/*x = x-512;
-			if (x > 255)
-				{x = 255;}
-			*/
-			MAX72xx_write(0,x);
-			delay_us(90); //11kHz
+			// slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
+			// function simplfys down to 
+			x = 0.25 *(float)x ; // do i need the float or not ???
+						 
 		#endif
 		
+		MAX72xx_write(0,x);
+			
+		//11kHz sample rate
+		delay_us(90);
 		
 		
 	}
