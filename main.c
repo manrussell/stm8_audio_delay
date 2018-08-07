@@ -24,6 +24,20 @@
   *
   ******************************************************************************
   */ 
+	
+	/*
+		Pins uC
+		=======
+from stm8CubeMx...
+
+		spi sclk pc-5
+		spi sdi pc-6
+		spi spo pc-7
+		
+		spi cs ram chip pa-1
+		spi cs dac cip pc-4
+	
+	*/
 
 
 /* Includes ------------------------------------------------------------------*/
@@ -33,8 +47,22 @@
 #define LED_pin                     GPIO_PIN_4
 #define LED_port                    GPIOD
 
-#define CS_pin 												GPIO_PIN_4 
-#define CS_port 											GPIOC
+#define DAC_CS_pin 												GPIO_PIN_4 
+#define DAC_CS_port 											GPIOC
+
+#define RAM_CS_pin 												GPIO_PIN_1 
+#define RAM_CS_port 											GPIOA
+
+// INSTRUCTION SET SRAM
+#define READ	0x03			// Read data from memory
+#define WRITE	0x02			// Write data to memory
+#define RDSR	0x05			// Read Status register
+#define WRSR	0x01			// Write Status register
+
+// STATUS REGISTER
+#define	BYTE_MODE	0x00
+#define	PAGE_MODE	0x80
+#define SEQ_MODE	0x40
 
 /* Private function prototypes -----------------------------------------------*/
 void setup(void);
@@ -45,11 +73,22 @@ void ADC1_setup(void);
 void TIM2_setup(void);
 void SPI_setup(void);
 
-void MAX72xx_write(unsigned char address, unsigned char value);
-void MAX72xx_init(void);
+//spi device 1 DAC
+void MCP4901_DAC_write(unsigned char address, unsigned char value);
+void MCP4901_DAC_init(void);
+
+//spi device 2 RAM
+void MCP_23K256_init(void);
+void MCP_23K256_RAM_read_byte(uint16_t address, unsigned char *value);
+void MCP_23K256_RAM_write_byte(uint16_t address, unsigned char value);
+void MCP_23K256_read_status_register(uint8_t *data);
+void MCP_23K256_write_status_register(uint8_t data);
 
 void delay_us(unsigned int  value);
 void delay_ms(unsigned int  value);
+
+//tests
+uint8_t RAM_test_001(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -58,16 +97,25 @@ void main(void)
 	uint16_t x = 8;
 	uint16_t y = 0;
 	//uint16_t pwm_duty = 0;
+	uint8_t res = 0;
 	
 	clock_setup();
 	GPIO_setup();
 	ADC1_setup();
 	//TIM2_setup(); // does pwm
 	SPI_setup();	
-	MAX72xx_init();
+	MCP_23K256_init();
+	MCP4901_DAC_init();
 	
 	//GPIO_WriteHigh(LED_port, LED_pin);
 	//GPIO_WriteLow(LED_port, LED_pin);
+	
+	
+	res = RAM_test_001();
+	if(res != 0)
+	{
+		while(1);
+	}
 	
   /* Infinite loop */
   while (1)
@@ -83,7 +131,7 @@ void main(void)
 				y++;
 				y %= 1024;
 				// map function divides range from 1024 down to 255
-				x = 0 + 0.25 *(float)y ;
+				x = 0.25 *(float)y ;
 						
 		#else
 			ADC1_StartConversion();
@@ -101,7 +149,7 @@ void main(void)
 						 
 		#endif
 		
-		MAX72xx_write(0,x);
+		MCP4901_DAC_write(0,x);
 			
 		//11kHz sample rate
 		delay_us(90);
@@ -109,6 +157,118 @@ void main(void)
 		
 	}
   
+}
+
+
+/*
+	void MCP_23K256_read_status_register(uint8_t *data);
+	void MCP_23K256_write_status_register(uint8_t data);
+	void MCP_23K256_RAM_write_byte(uint16_t address, unsigned char value);
+	void MCP_23K256_RAM_read_byte(uint16_t address, unsigned char *value);
+
+
+*/
+uint8_t RAM_test_001(void)
+{
+	uint8_t cnt = 0;
+	uint8_t data = 0;
+	uint8_t wdata = 0;
+	uint16_t addr = 0;
+	
+	//write 0 to the status register
+	data = BYTE_MODE;
+	MCP_23K256_write_status_register(data);
+	
+	//
+	MCP_23K256_read_status_register(&data);
+/*	if(data != BYTE_MODE)
+	{
+		//failed 
+		while(1);
+	}
+//2
+	data = PAGE_MODE;
+	MCP_23K256_write_status_register(data);
+	
+	//
+	MCP_23K256_read_status_register(&data);
+	if(data != PAGE_MODE)
+	{
+		//failed 
+		//while(1);
+	}	
+	
+//3
+	data = SEQ_MODE;
+	MCP_23K256_write_status_register(data);
+	
+	//
+	MCP_23K256_read_status_register(&data);
+	if(data != SEQ_MODE)
+	{
+		//failed
+		//while(1);
+	}
+	
+//4 reset atate	
+	data = BYTE_MODE; 
+	MCP_23K256_write_status_register(data);
+	
+	//
+	MCP_23K256_read_status_register(&data);
+	if(data != BYTE_MODE)
+	{
+		//failed 
+		while(1);
+	}
+//2
+
+*/
+wdata = 2;
+addr =0;
+	//
+	MCP_23K256_RAM_write_byte(addr, wdata);
+	
+	//
+	MCP_23K256_RAM_read_byte(addr, &data);
+	
+	if (wdata != data)
+	{
+		//while(1);
+	}
+	
+wdata = 250;
+addr =1;
+	//
+	MCP_23K256_RAM_write_byte(addr, wdata);
+	
+	//
+	MCP_23K256_RAM_read_byte(addr, &data);
+	
+	if (wdata != data)
+	{
+		//while(1);
+	}
+	
+wdata = 4;
+addr =2;
+	//
+	MCP_23K256_RAM_write_byte(addr, wdata);
+	
+	//
+	MCP_23K256_RAM_read_byte(addr, &data);
+	
+	if (wdata != data)
+	{
+		//while(1);
+	}
+
+	// check memorylocations
+	for(addr = 0; addr<3; addr++)
+	{
+		MCP_23K256_RAM_read_byte(addr, &data);
+	}
+	return 0;
 }
 
 void clock_setup(void)
@@ -195,24 +355,182 @@ void SPI_setup(void)
 	SPI_MODE_MASTER, \
 	SPI_CLOCKPOLARITY_LOW, \
 	SPI_CLOCKPHASE_1EDGE, \
-	SPI_DATADIRECTION_1LINE_TX, \
+	SPI_DATADIRECTION_2LINES_FULLDUPLEX, \
 	SPI_NSS_SOFT, \
 	0x0);
   
   SPI_Cmd(ENABLE);
 }
 
-
-
-void MAX72xx_init(void)
+void MCP_23K256_init()
 {
-	// initialise the CS pin
-  GPIO_Init(CS_port, CS_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
+	GPIO_Init(RAM_CS_port, RAM_CS_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
   delay_ms(10);
 }
 
+/*
+*  
+*/
+void MCP_23K256_read_status_register(uint8_t *data)
+{
+	
+  while(SPI_GetFlagStatus(SPI_FLAG_BSY));
+	
+  GPIO_WriteLow(RAM_CS_port, RAM_CS_pin);
+	
+  SPI_SendData(RDSR); // read ststus reg
+	
+  while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+	
+	//extra
+while (SPI_GetFlagStatus(SPI_FLAG_RXNE) == RESET);
+SPI_SendData( 255 );
+while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+	
+  *data = SPI_ReceiveData(); 
+	
+  while(!SPI_GetFlagStatus(SPI_FLAG_RXNE));
+	
+	// this delay was required because i was seeing the cs line 
+	// going high before the spi data was finished being written
+	delay_us(1);
 
-void MAX72xx_write(unsigned char address, unsigned char value)
+  GPIO_WriteHigh(RAM_CS_port, RAM_CS_pin);
+}
+
+/*
+* status modes are:
+* 00 = byte mode
+* 10 = page mode
+* 01 = sequential/burst mode
+* 11 = reserved
+*/
+void MCP_23K256_write_status_register(uint8_t data)
+{
+	
+  while(SPI_GetFlagStatus(SPI_FLAG_BSY));
+	
+  GPIO_WriteLow(RAM_CS_port, RAM_CS_pin);
+	
+	// write status register
+  SPI_SendData(WRSR); 
+  while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+	
+	
+  SPI_SendData(data); 
+  while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+	
+	// this delay was required because i was seeing the cs line 
+	// going high before the spi data was finished being written
+	delay_us(1);
+
+  GPIO_WriteHigh(RAM_CS_port, RAM_CS_pin);
+
+}
+
+
+
+/*
+
+
+write instruction = 0000 0010
+*/
+void MCP_23K256_RAM_write_byte(uint16_t address, unsigned char value)
+{
+	uint8_t addr = 0;
+	
+  while(SPI_GetFlagStatus(SPI_FLAG_BSY));
+	
+  GPIO_WriteLow(RAM_CS_port, RAM_CS_pin);
+	
+	// send instruction
+  SPI_SendData(WRITE); // instruction 2 write
+  while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+	
+	//send top 8 bits of address
+	addr = address>>8;
+  SPI_SendData(addr); // send 16 bit address // MSB is don't care
+  while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+	
+	//send bottom 8 bits of address
+	addr = (address&255);
+  SPI_SendData( addr );
+  while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+	
+  SPI_SendData(value); 
+	
+  while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+	
+	// this delay was required because i was seeing the cs line 
+	// going high before the spi data was finished being written
+	delay_us(1);
+
+  GPIO_WriteHigh(RAM_CS_port, RAM_CS_pin);
+	
+	
+}
+
+/*
+ read instruction = 0000 0011
+*/
+
+
+void MCP_23K256_RAM_read_byte(uint16_t address, unsigned char *value)
+{		
+	uint8_t addr = 0;
+
+  while(SPI_GetFlagStatus(SPI_FLAG_BSY));
+	
+  GPIO_WriteLow(RAM_CS_port, RAM_CS_pin);
+	
+  SPI_SendData(READ); // instruction 3 read
+	
+  while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+	
+	//send top 8 bits of address
+	addr = address>>8;
+  SPI_SendData(addr); // send 16 bit address // MSB is don't care
+  while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+	
+	//send bottom bits of address
+	addr = (address&255);
+  SPI_SendData( addr );
+  while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+	
+//  SPI_SendData( 6 );
+//  while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+while (SPI_GetFlagStatus(SPI_FLAG_RXNE) == RESET);
+SPI_SendData( 255 );
+while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
+while(!SPI_GetFlagStatus(SPI_FLAG_RXNE));	
+	
+	// read data back
+  *value = SPI_ReceiveData();  
+	
+	
+
+	
+	// this delay was required because i was seeing the cs line 
+	// going high before the spi data was finished being written
+	delay_us(1);
+
+  GPIO_WriteHigh(RAM_CS_port, RAM_CS_pin);
+}
+
+/*
+*  initialise the CS pin
+*/
+void MCP4901_DAC_init(void)
+{
+  GPIO_Init(DAC_CS_port, DAC_CS_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
+  delay_ms(10);
+}
+
+/*
+* 
+
+*/
+void MCP4901_DAC_write(unsigned char address, unsigned char value)
 {
 	//0,BUF,GS,SHDN, 8bit data, x,x,x,x
 	//0,BUF,GS,SHDN, 4bit data | 4 bits data, x,x,x,x
@@ -248,7 +566,7 @@ void MAX72xx_write(unsigned char address, unsigned char value)
 	
   while(SPI_GetFlagStatus(SPI_FLAG_BSY));
 	
-  GPIO_WriteLow(CS_port, CS_pin);
+  GPIO_WriteLow(DAC_CS_port, DAC_CS_pin);
 	
   SPI_SendData(address);
 	
@@ -258,7 +576,8 @@ void MAX72xx_write(unsigned char address, unsigned char value)
 	
   while(!SPI_GetFlagStatus(SPI_FLAG_TXE));
 	
-	
+	// this delay was required because i was seeing the cs line 
+	// going high before the spi data was finished being written
 	delay_us(1);
 	/*for(int i=0;i<1024;i++)
 	{
@@ -266,7 +585,7 @@ void MAX72xx_write(unsigned char address, unsigned char value)
 	}*/
 	
 
-  GPIO_WriteHigh(CS_port, CS_pin);
+  GPIO_WriteHigh(DAC_CS_port, DAC_CS_pin);
 	
 }
 
