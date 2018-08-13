@@ -64,6 +64,9 @@ from stm8CubeMx...
 #define	PAGE_MODE	0x80
 #define SEQ_MODE	0x40
 
+//SRAM SIZE
+#define SRAM_SIZE 32000
+
 /* Private function prototypes -----------------------------------------------*/
 void setup(void);
 void clock_setup(void);
@@ -74,13 +77,14 @@ void TIM2_setup(void);
 void SPI_setup(void);
 
 //spi device 1 DAC
-void MCP4901_DAC_write(unsigned char address, unsigned char value);
+void MCP4901_DAC_write(unsigned char value);
 void MCP4901_DAC_init(void);
 
 //spi device 2 RAM
 void MCP_23K256_init(void);
 void MCP_23K256_RAM_read_byte(uint16_t address, unsigned char *value);
 void MCP_23K256_RAM_write_byte(uint16_t address, unsigned char value);
+// status registers
 void MCP_23K256_read_status_register(uint8_t *data);
 void MCP_23K256_write_status_register(uint8_t data);
 
@@ -88,70 +92,102 @@ void delay_us(unsigned int  value);
 void delay_ms(unsigned int  value);
 
 //tests
-uint8_t RAM_test_001(void);
+uint8_t TEST_ram_test_001(void);
+uint8_t TEST_rampfunc_in_ram_to_dac(void);
+void TEST_adc_to_dac(uint8_t *x);
+void TEST_adc_to_ram_to_dac(void);
+void TEST_adc_to_ram_to_dac_with_delay(void);
+void TEST_adc_to_ram_to_dac_with_with_fback(void);
 
 /* Private functions ---------------------------------------------------------*/
 
 void main(void)
 {
-	uint16_t x = 8;
-	uint16_t y = 0;
-	//uint16_t pwm_duty = 0;
+	//uint16_t x = 8;
+	//uint16_t y = 0;
+	
+	uint16_t adc_val = 0;	
+	uint8_t mapd_value = 0; // mapped adc valu
+	uint8_t read_val = 0;	//read val from ram
+	uint16_t write_addr = 0;	//write addr in ram
+	uint16_t read_addr = 0;	// read addr in val
+	uint16_t delay = 110; // length of delay in samples
 	uint8_t res = 0;
 	
 	clock_setup();
 	GPIO_setup();
 	ADC1_setup();
-	//TIM2_setup(); // does pwm
 	SPI_setup();	
 	MCP_23K256_init();
 	MCP4901_DAC_init();
 	
-	//GPIO_WriteHigh(LED_port, LED_pin);
-	//GPIO_WriteLow(LED_port, LED_pin);
-	
-	
-	res = RAM_test_001();
+/*	
+	res = TEST_ram_test_001();
 	if(res != 0)
 	{
 		while(1);
 	}
 	
+	TEST_adc_to_dac(&adc_val);
+	
+	res = TEST_rampfunc_in_ram_to_dac();
+	if(res != 0)
+	{
+		while(1);
+	}
+	
+	TEST_adc_to_ram_to_dac();
+	
+	TEST_adc_to_ram_to_dac_with_delay();
+	
+	TEST_adc_to_ram_to_dac_with_with_fback();
+*/
+	
   /* Infinite loop */
   while (1)
-  {
-		/*
-			//pwm out
-			//TIM2_SetCompare1(x);
-		*/
+  {		
+	//Sample value
+		ADC1_StartConversion();
+		while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
+	
+		adc_val = ADC1_GetConversionValue(); // for led knob
+		ADC1_ClearFlag(ADC1_FLAG_EOC);
+	
+	// map function
+		// (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+		// input range 0-1024 out range 0-255 therefore
+		// slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
+		// function simplfys down to 
+		mapd_value = 0.25 *(float)adc_val ; // do i need the float or not ???
 		
-		//#define SAWTOOTH
-		#ifdef SAWTOOTH
-			// saw tooth wave out			
-				y++;
-				y %= 1024;
-				// map function divides range from 1024 down to 255
-				x = 0.25 *(float)y ;
-						
-		#else
-			ADC1_StartConversion();
-			while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
+		//with feedback 50% wet
+		mapd_value = mapd_value/2 +  read_val/2; // do i need the float or not ???
 		
-			x = ADC1_GetConversionValue(); // for led knob
-			ADC1_ClearFlag(ADC1_FLAG_EOC);
+	// sort out read addresses
+		if( (write_addr - delay) < 0)
+		{
+			//start up situation
+			read_addr = SRAM_SIZE - delay + write_addr;
+		}
 		
-			// map function
-			// (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-			// input range 0-1024 out range 0-255 therefore
-			// slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
-			// function simplfys down to 
-			x = 0.25 *(float)x ; // do i need the float or not ???
-						 
-		#endif
+		if( (write_addr - delay) >= 0)
+		{
+			read_addr = write_addr - delay;
+		}
 		
-		MCP4901_DAC_write(0,x);
+	//write to ram
+		MCP_23K256_RAM_write_byte(write_addr, mapd_value);
+	
+	//read from ram
+		MCP_23K256_RAM_read_byte(read_addr, &read_val);
+		
+	//write value to dac			
+		MCP4901_DAC_write(read_val);
+	
+	//increment write pointer
+		write_addr++;
 			
-		//11kHz sample rate
+	//11kHz sample rate
 		delay_us(90);
 		
 		
@@ -166,9 +202,9 @@ void main(void)
 	void MCP_23K256_RAM_write_byte(uint16_t address, unsigned char value);
 	void MCP_23K256_RAM_read_byte(uint16_t address, unsigned char *value);
 
-
+ Simply writes to ram and reads from ram
 */
-uint8_t RAM_test_001(void)
+uint8_t TEST_ram_test_001(void)
 {
 	uint8_t cnt = 0;
 	uint8_t data = 0;
@@ -269,6 +305,229 @@ addr =2;
 		MCP_23K256_RAM_read_byte(addr, &data);
 	}
 	return 0;
+}
+
+/*
+* fills ram with ramp function data 0-255
+* loops: reads out value from ram, send to dac, wait 
+*/
+uint8_t TEST_rampfunc_in_ram_to_dac(void)
+{
+	uint8_t data = 0;
+	uint8_t wdata = 0;
+	uint16_t addr = 0;	
+	
+	/* fill ram with values*/
+	for(addr = 0, wdata; addr<255; addr++, wdata++)
+	{
+		MCP_23K256_RAM_write_byte(addr, wdata);
+	}
+	
+	/*read values outof ram  and write to DAC */
+	while(1)
+	{
+		for(addr = 0; addr<255; addr++)
+		{
+			MCP_23K256_RAM_read_byte(addr, &data);
+			MCP4901_DAC_write(data);
+			delay_us(90);	//11kHz sample rate
+		}
+	}
+	
+	return 0;
+}
+
+/*Simply sends adc value to the dac -no ram involved*/
+void TEST_adc_to_dac(uint8_t *x)
+{
+	/*
+	while(1)
+	{
+		ADC1_StartConversion();
+		while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
+		
+		*x = ADC1_GetConversionValue(); // for led knob
+		ADC1_ClearFlag(ADC1_FLAG_EOC);
+		
+		// map function
+		// (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+		// input range 0-1024 out range 0-255 therefore
+		// slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
+		// function simplfys down to 
+		*x = 0.25 *(float)x ; // do i need the float or not ???
+			MCP4901_DAC_write(adc_val);
+				
+		//11kHz sample rate
+		delay_us(90);
+	
+	}
+	
+*/
+}
+
+
+void TEST_adc_to_ram_to_dac(void)
+{
+	uint16_t adc_val = 0;
+	uint16_t addr = 0;
+	uint8_t mapd_value = 0; 
+	
+	while(1)
+	{
+		//Sample value
+		ADC1_StartConversion();
+		while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
+		
+		adc_val = ADC1_GetConversionValue(); // for led knob
+		ADC1_ClearFlag(ADC1_FLAG_EOC);
+		
+		// map function
+		// (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+		// input range 0-1024 out range 0-255 therefore
+		// slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
+		// function simplfys down to 
+		mapd_value = 0.25 *(float)adc_val ; // do i need the float or not ???
+		
+		//write to ram
+		MCP_23K256_RAM_write_byte(addr, mapd_value);
+		// retrieve value from ram
+		
+		mapd_value = 0; // check value
+		MCP_23K256_RAM_read_byte(addr, &mapd_value);
+		
+		//check that addr
+		addr++;
+		
+		MCP4901_DAC_write(mapd_value);
+			
+		//11kHz sample rate
+		delay_us(90);
+		
+	}
+	
+}
+
+
+void TEST_adc_to_ram_to_dac_with_delay(void)
+{
+	uint16_t adc_val = 0;	
+	uint8_t mapd_value = 0; // mapped adc valu
+	uint8_t read_val = 0;	//read val from ram
+	uint16_t write_addr = 0;	//write addr in ram
+	uint16_t read_addr = 0;	// read addr in val
+	uint16_t delay = 110; // length of delay in samples
+	uint8_t res = 0;
+	
+	
+  while (1)
+  {		
+	//Sample value
+		ADC1_StartConversion();
+		while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
+	
+		adc_val = ADC1_GetConversionValue(); // for led knob
+		ADC1_ClearFlag(ADC1_FLAG_EOC);
+	
+		// map function
+		// (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+		// input range 0-1024 out range 0-255 therefore
+		// slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
+		// function simplfys down to 
+		mapd_value = 0.25 *(float)adc_val ; // do i need the float or not ???
+		
+	// sort out read addresses
+		if( (write_addr - delay) < 0)
+		{
+			//start up situation
+			read_addr = SRAM_SIZE - delay + write_addr;
+		}
+		
+		if( (write_addr - delay) >= 0)
+		{
+			read_addr = write_addr - delay;
+		}
+		
+	//write to ram
+		MCP_23K256_RAM_write_byte(write_addr, mapd_value);
+	
+	//read from ram
+		MCP_23K256_RAM_read_byte(read_addr, &read_val);
+		
+	//write value to dac			
+		MCP4901_DAC_write(read_val);
+		
+	//increment write pointer
+		write_addr++;
+		
+	//11kHz sample rate
+		delay_us(90);
+		
+		
+	}
+}
+
+
+
+void TEST_adc_to_ram_to_dac_with_with_fback(void)
+{
+
+	uint16_t adc_val = 0;	
+	uint8_t mapd_value = 0; // mapped adc valu
+	uint8_t read_val = 0;	//read val from ram
+	uint16_t write_addr = 0;	//write addr in ram
+	uint16_t read_addr = 0;	// read addr in val
+	uint16_t delay = 110; // length of delay in samples
+	uint8_t res = 0;
+	
+  /* Infinite loop */
+  while (1)
+  {		
+	//Sample value
+		ADC1_StartConversion();
+		while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
+	
+		adc_val = ADC1_GetConversionValue(); // for led knob
+		ADC1_ClearFlag(ADC1_FLAG_EOC);
+	
+	// map function
+		// (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+		// input range 0-1024 out range 0-255 therefore
+		// slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
+		// function simplfys down to 
+		mapd_value = 0.25 *(float)adc_val ; // do i need the float or not ???
+		
+		//with feedback 50% wet
+		mapd_value = mapd_value/2 +  read_val/2; // do i need the float or not ???
+		
+	// sort out read addresses
+		if( (write_addr - delay) < 0)
+		{
+			//start up situation
+			read_addr = SRAM_SIZE - delay + write_addr;
+		}
+		
+		if( (write_addr - delay) >= 0)
+		{
+			read_addr = write_addr - delay;
+		}
+		
+	//write to ram
+		MCP_23K256_RAM_write_byte(write_addr, mapd_value);
+	
+	//read from ram
+		MCP_23K256_RAM_read_byte(read_addr, &read_val);
+		
+	//write value to dac			
+		MCP4901_DAC_write(read_val);
+	
+	//increment write pointer
+		write_addr++;
+			
+	//11kHz sample rate
+		delay_us(90);
+		
+	}
+	
 }
 
 void clock_setup(void)
@@ -530,8 +789,9 @@ void MCP4901_DAC_init(void)
 * 
 
 */
-void MCP4901_DAC_write(unsigned char address, unsigned char value)
+void MCP4901_DAC_write( unsigned char value)
 {
+	
 	//0,BUF,GS,SHDN, 8bit data, x,x,x,x
 	//0,BUF,GS,SHDN, 4bit data | 4 bits data, x,x,x,x
 	
@@ -558,7 +818,7 @@ void MCP4901_DAC_write(unsigned char address, unsigned char value)
 	//address[5] = 1; // unity
 	//address[4] = 1; // active
 	
-	address = 0x30; // 00,11,00,00
+	unsigned char address = 0x30; // 00,11,00,00
 	address |= ( value>>4); // assume 0's shoved in the left
 	
 	value = ( value<<4 ); // assume 0 shoved in from the right
