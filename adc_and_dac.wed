@@ -1,7 +1,17 @@
 [WorkState_v1-Edit.Breakpoints]
-Break0=TypeFile, main.c, 191, 0, 0, 1,
-Break1=TypeFile, main.c, 331, 0, 0, 1,
-Break2=TypeFile, main.c, 535, 0, 0, 1,
+Break0=TypeFile, main.c, 169, 0, 0, 1,
+Break1=TypeFile, main.c, 170, 0, 0, 1,
+Break2=TypeFile, main.c, 185, 0, 0, 1,
+Break3=TypeFile, main.c, 192, 0, 0, 1,
+Break4=TypeFile, main.c, 199, 0, 0, 1,
+Break5=TypeFile, main.c, 200, 0, 0, 1,
+Break6=TypeFile, main.c, 217, 0, 0, 1,
+Break7=TypeFile, main.c, 220, 0, 0, 1,
+Break8=TypeFile, main.c, 223, 0, 0, 1,
+Break9=TypeFile, main.c, 409, 0, 0, 1,
+Break10=TypeFile, main.c, 479, 0, 0, 1,
+Break11=TypeFile, main.c, 553, 0, 0, 1,
+Break12=TypeFile, main.c, 584, 0, 0, 1,
 
 [WorkState_v1_2]
 ptn_Child1=DockState
@@ -188,7 +198,7 @@ ResourceID=0
 
 [WorkState_v1_2.DockState.Bar-4]
 BarID=59420
-Bars=13
+Bars=11
 Bar#0=0
 Bar#1=5708
 Bar#2=5720
@@ -200,8 +210,6 @@ Bar#7=0
 Bar#8=73538
 Bar#9=0
 Bar#10=0
-Bar#11=0
-Bar#12=0
 Style=0
 ExStyle=0
 PrevFloating=False
@@ -260,7 +268,7 @@ ResourceID=0
 
 [WorkState_v1_2.DockState.Bar-6]
 BarID=59421
-Bars=36
+Bars=24
 Bar#0=0
 Bar#1=35103
 Bar#2=35102
@@ -285,18 +293,6 @@ Bar#20=0
 Bar#21=0
 Bar#22=0
 Bar#23=0
-Bar#24=0
-Bar#25=0
-Bar#26=0
-Bar#27=0
-Bar#28=0
-Bar#29=0
-Bar#30=0
-Bar#31=0
-Bar#32=0
-Bar#33=0
-Bar#34=0
-Bar#35=0
 Style=0
 ExStyle=0
 PrevFloating=False
@@ -358,10 +354,10 @@ BarID=59647
 MRUWidth=456
 Docking=True
 MRUDockID=59419
-MRUDockLeftPos=8
-MRUDockTopPos=26
-MRUDockRightPos=1583
-MRUDockBottomPos=55
+MRUDockLeftPos=-1
+MRUDockTopPos=-1
+MRUDockRightPos=1695
+MRUDockBottomPos=28
 MRUFloatStyle=8196
 MRUFloatXPos=-2147483648
 MRUFloatYPos=0
@@ -375,7 +371,7 @@ LastAlignedDocking=0
 PctWidth=1000000
 MRUFloatCX=473
 MRUFloatCY=29
-MRUHorzDockCX=1575
+MRUHorzDockCX=1696
 MRUHorzDockCY=29
 MRUVertDockCX=76
 MRUVertDockCY=736
@@ -551,8 +547,9 @@ Buttons=KAAIAAAACAEGAAMAAIAAAACAEGAAAAAAAAAAAABBAIAAAAAACBAIAAAAAADBAIAAAAAAAAAA
 BarID=59399
 XPos=522
 YPos=28
+MRUWidth=385
 Docking=True
-MRUDockID=0
+MRUDockID=59419
 MRUDockLeftPos=522
 MRUDockTopPos=28
 MRUDockRightPos=924
@@ -568,12 +565,12 @@ AutoHide=False
 AutoHidePinned=False
 LastAlignedDocking=0
 PctWidth=39674
-MRUFloatCX=0
-MRUFloatCY=0
+MRUFloatCX=402
+MRUFloatCY=30
 MRUHorzDockCX=402
 MRUHorzDockCY=30
-MRUVertDockCX=0
-MRUVertDockCY=0
+MRUVertDockCX=31
+MRUVertDockCY=387
 MRUDockingState=0
 DockingStyle=61440
 TypeID=14946
@@ -751,7 +748,7 @@ MRUDockID=0
 MRUDockLeftPos=1
 MRUDockTopPos=-2
 MRUDockRightPos=210
-MRUDockBottomPos=718
+MRUDockBottomPos=685
 MRUFloatStyle=4
 MRUFloatXPos=-2147483648
 MRUFloatYPos=0
@@ -768,7 +765,7 @@ MRUFloatCY=180
 MRUHorzDockCX=300
 MRUHorzDockCY=180
 MRUVertDockCX=209
-MRUVertDockCY=720
+MRUVertDockCY=687
 MRUDockingState=0
 DockingStyle=61440
 TypeID=0
@@ -784,7 +781,7 @@ Docking=True
 MRUDockID=0
 MRUDockLeftPos=1
 MRUDockTopPos=5
-MRUDockRightPos=1575
+MRUDockRightPos=1696
 MRUDockBottomPos=185
 MRUFloatStyle=4
 MRUFloatXPos=-2147483648
@@ -799,7 +796,7 @@ LastAlignedDocking=0
 PctWidth=1000000
 MRUFloatCX=300
 MRUFloatCY=180
-MRUHorzDockCX=1574
+MRUHorzDockCX=1695
 MRUHorzDockCY=180
 MRUVertDockCX=300
 MRUVertDockCY=180
@@ -1170,14 +1167,16 @@ ptn_Child1=MainFrame
 ptn_Child2=ChildFrames
 
 [WorkState_v1_2.Frames.MainFrame]
-WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPNKAAAAAAAAAAAAAAEOGAAAAAOPDAAAAA
-Title=ST Visual Develop - adc_and_dac.stw
+WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPGLAAAAAADBAAAAAAGGHAAAAAAPDAAAAA
+Title=ST Visual Develop - adc_and_dac.stw - [main.c]
 
 [WorkState_v1_2.Frames.ChildFrames]
 ptn_Child1=Document-0
 ptn_Child2=Document-1
 ptn_Child3=Document-2
 ptn_Child4=Document-3
+ptn_Child5=Document-4
+ptn_Child6=Document-5
 
 [WorkState_v1_2.Frames.ChildFrames.Document-0]
 ptn_Child1=ViewFrame-0
@@ -1186,7 +1185,7 @@ ptn_Child1=ViewFrame-0
 DocPathName=main.c
 DocumentString=
 DocTemplateIndex=0
-WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPAAAAAAAADAAAAAAADAFAAAAAPICAAAAA
+WindowPlacement=MCAAAAAACAAAAAAADAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPCOPPPPPPAAAAAAAADAAAAAAADAFAAAAAFKCAAAAA
 IsActiveChildFrame=True
 IsFrameVisible=True
 
@@ -1194,10 +1193,10 @@ IsFrameVisible=True
 ptn_Child1=ViewFrame-0
 
 [WorkState_v1_2.Frames.ChildFrames.Document-1.ViewFrame-0]
-DocPathName=en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_spi.c
+DocPathName=en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_spi.h
 DocumentString=
 DocTemplateIndex=0
-WindowPlacement=MCAAAAAACAAAAAAACAAAAAAAAAAAAAAAKNCAAAAAIPPPPPPPCOPPPPPPCDAAAAAACDAAAAAAFNDAAAAACMBAAAAA
+WindowPlacement=MCAAAAAACAAAAAAACAAAAAAAAAAAAAAAEGCAAAAAIPPPPPPPCOPPPPPPLEAAAAAALEAAAAAAOODAAAAALNBAAAAA
 IsActiveChildFrame=False
 IsFrameVisible=True
 
@@ -1205,10 +1204,10 @@ IsFrameVisible=True
 ptn_Child1=ViewFrame-0
 
 [WorkState_v1_2.Frames.ChildFrames.Document-2.ViewFrame-0]
-DocPathName=en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_spi.h
+DocPathName=en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc1.h
 DocumentString=
 DocTemplateIndex=0
-WindowPlacement=MCAAAAAAAAAAAAAACAAAAAAAAKAAAAAAKNCAAAAAPPPPPPPPPPPPPPPPLEAAAAAALEAAAAAAOODAAAAALNBAAAAA
+WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPCOPPPPPPLNBAAAAALPPPPPPPLKGAAAAAPMBAAAAA
 IsActiveChildFrame=False
 IsFrameVisible=True
 
@@ -1216,9 +1215,31 @@ IsFrameVisible=True
 ptn_Child1=ViewFrame-0
 
 [WorkState_v1_2.Frames.ChildFrames.Document-3.ViewFrame-0]
-DocPathName=en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc1.h
+DocPathName=en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_spi.c
 DocumentString=
 DocTemplateIndex=0
-WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPLNBAAAAALPPPPPPPLKGAAAAAPMBAAAAA
+WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPCOPPPPPPNHAAAAAANHAAAAAAMDDAAAAAABCAAAAA
+IsActiveChildFrame=False
+IsFrameVisible=True
+
+[WorkState_v1_2.Frames.ChildFrames.Document-4]
+ptn_Child1=ViewFrame-0
+
+[WorkState_v1_2.Frames.ChildFrames.Document-4.ViewFrame-0]
+DocPathName=en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_gpio.c
+DocumentString=
+DocTemplateIndex=0
+WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPCOPPPPPPGJAAAAAAGJAAAAAAFFDAAAAAJCCAAAAA
+IsActiveChildFrame=False
+IsFrameVisible=True
+
+[WorkState_v1_2.Frames.ChildFrames.Document-5]
+ptn_Child1=ViewFrame-0
+
+[WorkState_v1_2.Frames.ChildFrames.Document-5.ViewFrame-0]
+DocPathName=en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_adc1.c
+DocumentString=
+DocTemplateIndex=0
+WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPCOPPPPPPPKAAAAAAPKAAAAAAOGDAAAAACECAAAAA
 IsActiveChildFrame=False
 IsFrameVisible=True

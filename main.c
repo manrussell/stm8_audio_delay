@@ -26,6 +26,10 @@
   */ 
 	
 	/*
+		uC chip
+		=======
+		STM8S105K4T6C
+	
 		Pins uC
 		=======
 from stm8CubeMx...
@@ -36,7 +40,11 @@ from stm8CubeMx...
 		
 		spi cs ram chip pa-1
 		spi cs dac cip pc-4
-	
+		
+		adc_mic					pb0
+		adc_delay				pb1
+		adc_feedback		pb2
+		
 	*/
 
 
@@ -65,7 +73,8 @@ from stm8CubeMx...
 #define SEQ_MODE	0x40
 
 //SRAM SIZE
-#define SRAM_SIZE 32000
+#define SRAM_SIZE 		32000
+
 
 /* Private function prototypes -----------------------------------------------*/
 void setup(void);
@@ -73,6 +82,7 @@ void clock_setup(void);
 void GPIO_setup(void);
 void SPI_setup(void);
 void ADC1_setup(void);
+void ADC1_setup_scan_mode(void);
 void TIM2_setup(void);
 void SPI_setup(void);
 
@@ -105,18 +115,27 @@ void main(void)
 {
 	//uint16_t x = 8;
 	//uint16_t y = 0;
+	// putting  int16_t mapd_delay_dial = 0;  int16_t write_addr = 0; 
 	
 	uint16_t adc_val = 0;	
-	uint8_t mapd_value = 0; // mapped adc valu
+	uint16_t adc_delay = 0;	// length of delay in samples
+	uint16_t adc_fb = 0;	// feedback dial
+	
+	uint8_t mapd_audio_value = 0; // mapped adc value of audio input
+	uint16_t mapd_delay_dial = 0;
+	uint16_t mapd_fb_dial = 0;
+	
+	uint16_t audio_signal = 0;
+	
 	uint8_t read_val = 0;	//read val from ram
 	uint16_t write_addr = 0;	//write addr in ram
 	uint16_t read_addr = 0;	// read addr in val
-	uint16_t delay = 110; // length of delay in samples
+	
 	uint8_t res = 0;
 	
 	clock_setup();
 	GPIO_setup();
-	ADC1_setup();
+	ADC1_setup_scan_mode();
 	SPI_setup();	
 	MCP_23K256_init();
 	MCP4901_DAC_init();
@@ -137,46 +156,65 @@ void main(void)
 	}
 	
 	TEST_adc_to_ram_to_dac();
-	
-	TEST_adc_to_ram_to_dac_with_delay();
-	
-	TEST_adc_to_ram_to_dac_with_with_fback();
 */
+	//TEST_adc_to_ram_to_dac_with_delay();
+
+	//TEST_adc_to_ram_to_dac_with_with_fback();
+
 	
   /* Infinite loop */
   while (1)
   {		
 	//Sample value
+		ADC1_ScanModeCmd(ENABLE);
 		ADC1_StartConversion();
 		while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == FALSE);
-	
-		adc_val = ADC1_GetConversionValue(); // for led knob
 		ADC1_ClearFlag(ADC1_FLAG_EOC);
+		adc_val = ADC1_GetBufferValue(0);
+		adc_delay = ADC1_GetBufferValue(1);
+		adc_fb = ADC1_GetBufferValue(2);
+
+		
+	//map feedback to 
+		//mapd_fb_dial = adc_fb>>8; // not used yet
+		//mapd_fb_dial = 0;
+		mapd_fb_dial = adc_fb;
+		#define FB_ADC_RANGE 	1023
+
+	//map delay 
+		mapd_delay_dial = (adc_delay/4); // * 11; // adc_delay*(11000) /(1023) // juist do /2 to remove glitching
 	
-	// map function
+	// map function for adc
 		// (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 		// input range 0-1024 out range 0-255 therefore
 		// slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
 		// function simplfys down to 
-		mapd_value = 0.25 *(float)adc_val ; // do i need the float or not ???
+		mapd_audio_value = 0.25 *(float)adc_val ; // do i need the float or not ???
 		
 		//with feedback 50% wet
-		mapd_value = mapd_value/2 +  read_val/2; // do i need the float or not ???
+		//mapd_audio_value = mapd_audio_value/2 + read_val/2; // do i need the float or not ???
+		
+		//mapd_audio_value = ( ((FB_ADC_RANGE-mapd_fb_dial)/(float)FB_ADC_RANGE) * (float)mapd_audio_value) + ((mapd_fb_dial/(float)FB_ADC_RANGE) * (float)read_val);
+		
+		audio_signal =  (uint16_t)( ((FB_ADC_RANGE-mapd_fb_dial)/(float)FB_ADC_RANGE) * (float)mapd_audio_value);
+		audio_signal += (uint16_t )( (mapd_fb_dial/(float)FB_ADC_RANGE) * (float)read_val);
 		
 	// sort out read addresses
-		if( (write_addr - delay) < 0)
+		if( (int16_t)(write_addr - mapd_delay_dial) >= 0)
+		{
+			read_addr = write_addr - mapd_delay_dial;
+		}
+		else
 		{
 			//start up situation
-			read_addr = SRAM_SIZE - delay + write_addr;
+			read_addr = SRAM_SIZE - mapd_delay_dial + write_addr;
 		}
 		
-		if( (write_addr - delay) >= 0)
-		{
-			read_addr = write_addr - delay;
-		}
+
 		
 	//write to ram
-		MCP_23K256_RAM_write_byte(write_addr, mapd_value);
+//		MCP_23K256_RAM_write_byte(write_addr, mapd_audio_value);
+	MCP_23K256_RAM_write_byte(write_addr, audio_signal);
 	
 	//read from ram
 		MCP_23K256_RAM_read_byte(read_addr, &read_val);
@@ -186,10 +224,15 @@ void main(void)
 	
 	//increment write pointer
 		write_addr++;
+		
+	//is this quicker than mod SRAM_SIZE ? --and is it '<=' or '>'   ??
+		if(write_addr > SRAM_SIZE)
+		{
+			write_addr = 0;
+		}
 			
 	//11kHz sample rate
 		delay_us(90);
-		
 		
 	}
   
@@ -467,16 +510,15 @@ void TEST_adc_to_ram_to_dac_with_delay(void)
 }
 
 
-
 void TEST_adc_to_ram_to_dac_with_with_fback(void)
 {
 
 	uint16_t adc_val = 0;	
 	uint8_t mapd_value = 0; // mapped adc valu
 	uint8_t read_val = 0;	//read val from ram
-	uint16_t write_addr = 0;	//write addr in ram
+	int16_t write_addr = 0;	//write addr in ram
 	uint16_t read_addr = 0;	// read addr in val
-	uint16_t delay = 110; // length of delay in samples
+	int16_t delay = 110; // length of delay in samples
 	uint8_t res = 0;
 	
   /* Infinite loop */
@@ -551,25 +593,25 @@ void clock_setup(void)
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_AWU, DISABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC, ENABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER1, DISABLE);
-  CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2, ENABLE);
+  CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2, DISABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER4, DISABLE);
                                 
 }
 
 void GPIO_setup(void)
-{                               
+{   
+	// C5=sck  C6=mosi
   GPIO_DeInit(GPIOC);
-  //GPIO_Init(GPIOC, ((GPIO_Pin_TypeDef)GPIO_PIN_5 | GPIO_PIN_6), GPIO_MODE_OUT_PP_HIGH_FAST);
-  
-  //adc pin b0
+	GPIO_Init(GPIOC, ((GPIO_Pin_TypeDef)GPIO_PIN_5 | GPIO_PIN_6 ), 
+               GPIO_MODE_OUT_PP_HIGH_FAST);
+							 
+  //adc_audio pin b0, adc_delay_tme pb1, adc_feedback pb2
 	GPIO_DeInit(GPIOB);
-  GPIO_Init(GPIOB, GPIO_PIN_0, GPIO_MODE_IN_FL_NO_IT);
+  GPIO_Init(GPIOB, ((GPIO_Pin_TypeDef)(GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2)), GPIO_MODE_IN_FL_NO_IT); // 
 	
   //GPIO_Init(LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
 	
-	// C5=sck  C6=mosi
-	GPIO_Init(GPIOC, ((GPIO_Pin_TypeDef)GPIO_PIN_5 | GPIO_PIN_6 ), 
-               GPIO_MODE_OUT_PP_HIGH_FAST);
+
 }
 
 void ADC1_setup(void)
@@ -584,12 +626,51 @@ void ADC1_setup(void)
   ADC1_ALIGN_RIGHT, \
   ADC1_SCHMITTTRIG_CHANNEL0, \
   DISABLE);
-
+	
   ADC1_Cmd(ENABLE);
 
 }
 
+void ADC1_setup_scan_mode(void)
+{
+  ADC1_DeInit();         
+  
+  ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, \
+  ADC1_CHANNEL_0,\
+  ADC1_PRESSEL_FCPU_D18, \
+  ADC1_EXTTRIG_GPIO, \
+  DISABLE, \
+  ADC1_ALIGN_RIGHT, \
+  ADC1_SCHMITTTRIG_CHANNEL0, \
+  DISABLE);
+	
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, \
+  ADC1_CHANNEL_1,\
+  ADC1_PRESSEL_FCPU_D18, \
+  ADC1_EXTTRIG_GPIO, \
+  DISABLE, \
+  ADC1_ALIGN_RIGHT, \
+  ADC1_SCHMITTTRIG_CHANNEL1, \
+  DISABLE);
+	
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, \
+  ADC1_CHANNEL_2,\
+  ADC1_PRESSEL_FCPU_D18, \
+  ADC1_EXTTRIG_GPIO, \
+  DISABLE, \
+  ADC1_ALIGN_RIGHT, \
+  ADC1_SCHMITTTRIG_CHANNEL2, \
+  DISABLE);
+	
+	ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, \
+	((ADC1_Channel_TypeDef)(ADC1_CHANNEL_0 | ADC1_CHANNEL_1 | ADC1_CHANNEL_2)), \
+	ADC1_ALIGN_RIGHT);
 
+	ADC1_DataBufferCmd(ENABLE);
+
+  ADC1_Cmd(ENABLE);
+
+}
 
 
 void TIM2_setup(void)
