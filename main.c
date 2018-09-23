@@ -182,8 +182,8 @@ void main(void)
 		#define FB_ADC_RANGE 	1023
 
 	//map delay 
-		mapd_delay_dial = (adc_delay/4); // * 11; // adc_delay*(11000) /(1023) // juist do /2 to remove glitching
-	
+		//mapd_delay_dial = (adc_delay/4); // * 11; // adc_delay*(11000) /(1023) // juist do /2 to remove glitching
+		mapd_delay_dial = 512;
 	// map function for adc
 		// (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 		// input range 0-1024 out range 0-255 therefore
@@ -196,8 +196,8 @@ void main(void)
 		
 		//mapd_audio_value = ( ((FB_ADC_RANGE-mapd_fb_dial)/(float)FB_ADC_RANGE) * (float)mapd_audio_value) + ((mapd_fb_dial/(float)FB_ADC_RANGE) * (float)read_val);
 		
-		audio_signal =  (uint16_t)( ((FB_ADC_RANGE-mapd_fb_dial)/(float)FB_ADC_RANGE) * (float)mapd_audio_value);
-		audio_signal += (uint16_t )( (mapd_fb_dial/(float)FB_ADC_RANGE) * (float)read_val);
+		audio_signal =  (uint8_t)( ((FB_ADC_RANGE-mapd_fb_dial)/(float)FB_ADC_RANGE) * (float)mapd_audio_value);
+		audio_signal += (uint8_t )( (mapd_fb_dial/(float)FB_ADC_RANGE) * (float)read_val);
 		
 	// sort out read addresses
 		if( (int16_t)(write_addr - mapd_delay_dial) >= 0)
@@ -213,8 +213,7 @@ void main(void)
 
 		
 	//write to ram
-//		MCP_23K256_RAM_write_byte(write_addr, mapd_audio_value);
-	MCP_23K256_RAM_write_byte(write_addr, audio_signal);
+		MCP_23K256_RAM_write_byte(write_addr, audio_signal);
 	
 	//read from ram
 		MCP_23K256_RAM_read_byte(read_addr, &read_val);
