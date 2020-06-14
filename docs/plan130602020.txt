@@ -1,0 +1,69 @@
+Plan 13/06/2020
+========
+
+
+software
+========
+========
+
+sine table, so i can by pass microphone ( microphone needs a quieter power supply.
+
+example to use adc to sample more knobs. multi channel
+->don't use just one adc reading take a few and average them?
+
+timer for event driven stuff, 45, ms
+-> one for driving signal adc/dac,
+-> one for reading adc potentiometers
+
+mixing signals root two?
+
+feedback algorithm.
+-> multitap
+-> variable length
+
+
+hardware
+========
+========
+
+more knobs
+
+buffer for output.
+line level input.
+CV input
+
+
+
+
+
+====
+sine table
+
+max freq = 11025Hz
+low freq = 100Hz
+
+
+A  = 1, further amp change can be done in software
+pi = 3.141
+f  = 100. maybe if 
+T  = Time period of 1 period, Seconds? - we only need one cycle, so T = 1/f = 1/100 = 0.01
+t  = sample rate, 11KHz = 1/11000 = 0.090
+
+sineTable = A * sin( 2 * pi * f * t/T);
+
+
+How much ram will that take?
+do i leave it in flash or bung in ram? How much ram am i using?
+stack size 
+heap
+
+flash size
+
+
+
+
+
+
+
+
+

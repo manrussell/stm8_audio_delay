@@ -1,7 +1,7 @@
    1                     ; C Compiler for STM8 (COSMIC Software)
-   2                     ; Parser V4.11.10 - 06 Jul 2017
-   3                     ; Generator (Limited) V4.4.7 - 05 Oct 2017
-   4                     ; Optimizer V4.4.7 - 05 Oct 2017
+   2                     ; Parser V4.11.14 - 18 Nov 2019
+   3                     ; Generator (Limited) V4.4.11 - 19 Nov 2019
+   4                     ; Optimizer V4.4.11 - 19 Nov 2019
  112                     ; 53 void GPIO_DeInit(GPIO_TypeDef* GPIOx)
  112                     ; 54 {
  114                     	switch	.text
