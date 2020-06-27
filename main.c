@@ -40,7 +40,7 @@ from stm8CubeMx...
     */
 /*
 I might have borken all the Test functions now i am using multichannel ADC's
-
+Why do the spi finction need a delay_us(1) -> is the caputre flag set correctly?
 */
 
 /* Includes ------------------------------------------------------------------*/
@@ -84,10 +84,10 @@ put all gpio stuff here ie MOSI/MISO stuff don't leav it in the init function
 */
 
 // INSTRUCTION SET SRAM
-#define READ    0x03            // Read data from memory
-#define WRITE   0x02            // Write data to memory
-#define RDSR    0x05            // Read Status register
-#define WRSR    0x01            // Write Status register
+#define READ        0x03            // Read data from memory
+#define WRITE       0x02            // Write data to memory
+#define RDSR        0x05            // Read Status register
+#define WRSR        0x01            // Write Status register
 
 // STATUS REGISTER
 #define BYTE_MODE   0x00
@@ -118,16 +118,16 @@ void MCP_23K256_RAM_write_byte(uint16_t address, unsigned char value);
 void MCP_23K256_read_status_register(uint8_t *data);
 void MCP_23K256_write_status_register(uint8_t data);
 
-void delay_us(unsigned int  value);
-void delay_ms(unsigned int  value);
+void delay_us(unsigned int value);
+void delay_ms(unsigned int value);
 
-//tests
+//tests, used while setting up hardware.
 uint8_t TEST_ram_test_001(void);
 uint8_t TEST_rampfunc_in_ram_to_dac(void);
-void TEST_adc_to_dac(uint8_t *x);
-void TEST_adc_to_ram_to_dac(void);
-void TEST_adc_to_ram_to_dac_with_delay(void);
-void TEST_adc_to_ram_to_dac_with_with_fback(void);
+void    TEST_adc_to_dac(uint8_t *x);
+void    TEST_adc_to_ram_to_dac(void);
+void    TEST_adc_to_ram_to_dac_with_delay(void);
+void    TEST_adc_to_ram_to_dac_with_with_fback(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -136,12 +136,12 @@ void main(void)
     uint16_t adc_leftChannel = 0;
     uint16_t adc_feedback    = 0;
     uint16_t adc_delay       = 0;
-    uint8_t  mapd_value = 0;    // mapped adc valu
-    uint8_t  read_val   = 0;    // read val from ram
-    uint16_t write_addr = 0;    // write addr in ram
-    uint16_t read_addr  = 0;    // read addr in val
-    uint16_t delay      = 110;  // length of delay in samples
-    uint8_t  res        = 0;
+    uint8_t  mapd_value      = 0;    // mapped adc valu
+    uint8_t  read_val        = 0;    // read val from ram
+    uint16_t write_addr      = 0;    // write addr in ram
+    uint16_t read_addr       = 0;    // read addr in val
+    uint16_t delay           = 110;  // length of delay in samples
+    uint8_t  res             = 0;
     
     clock_setup();
     GPIO_setup();
@@ -672,11 +672,62 @@ void ADC1_setup(void)
 
 void TIM2_setup(void)
 {
+  /*
   TIM2_DeInit();
   TIM2_TimeBaseInit(TIM2_PRESCALER_32, 1000);
   TIM2_OC1Init(TIM2_OCMODE_PWM1, TIM2_OUTPUTSTATE_ENABLE, 1000, TIM2_OCPOLARITY_HIGH);
   TIM2_Cmd(ENABLE);
+  */
 
+/* one timer for us, incase we need it, */
+/* one interrupt timer, */
+
+
+}
+
+/* Blocking delay
+*/
+void delay_us(unsigned int us)
+{
+    TIM4_DeInit();
+    
+    if((us <= 200) && (us >= 0))
+    {
+        TIM4_TimeBaseInit(TIM4_PRESCALER_16, 200);
+        TIM4_Cmd(ENABLE);
+    }
+    else if((us <= 400) && (us > 200))
+    {
+        us >>= 1;
+        TIM4_TimeBaseInit(TIM4_PRESCALER_32, 200);
+        TIM4_Cmd(ENABLE);
+    }
+    else if((us <= 800) && (us > 400))
+    {
+        us >>= 2;
+        TIM4_TimeBaseInit(TIM4_PRESCALER_64, 200);
+        TIM4_Cmd(ENABLE);
+    }
+    else if((us <= 1600) && (us > 800))
+    {
+        us >>= 3;
+        TIM4_TimeBaseInit(TIM4_PRESCALER_128, 200);
+        TIM4_Cmd(ENABLE);
+    }
+    
+    while(TIM4_GetCounter() < us);
+    TIM4_ClearFlag(TIM4_FLAG_UPDATE);
+    TIM4_Cmd(DISABLE);
+}
+
+/* Blocking delay
+*/
+void delay_ms(unsigned int ms)
+{
+    while(ms--)
+    {
+        delay_us(1000);
+    };
 }
 
 
@@ -929,7 +980,7 @@ void MCP4901_DAC_write( unsigned char value)
 
 
 
-
+/*
 //stm_delay.h
 #define F_CPU               2000000UL 
 #define dly_const           (F_CPU / 16000000.0F) 
@@ -954,7 +1005,7 @@ void delay_ms(unsigned int  value)
     };
 }
 
-
+*/
 
 
 #ifdef USE_FULL_ASSERT
