@@ -184,11 +184,11 @@ void main( void )
         ADC1_ScanModeCmd( ENABLE );
         ADC1_StartConversion( );
         while( ADC1_GetFlagStatus( ADC1_FLAG_EOC ) == FALSE );
-        // ADC1_ClearFlag(ADC1_FLAG_EOC);
+        ADC1_ClearFlag(ADC1_FLAG_EOC);
         adc_leftChannel = ADC1_GetBufferValue( 0); //ADC_LEFTCHANNEL );     // 0
         adc_delay       = ADC1_GetBufferValue( 1); //ADC_FEEDBACK_AMOUNT ); // 1
         //adc_delay       = ADC1_GetBufferValue( ADC_DELAY_LENGTH );
-        ADC1_ClearFlag( ADC1_FLAG_EOC );
+        //ADC1_ClearFlag( ADC1_FLAG_EOC );
 
         //untested: set delay length (vari length delay) using adc
         delay = ( adc_delay << 2 ); //(adc_delay >> 2);
@@ -648,19 +648,26 @@ Explanation required.
 • If the ADC has reference source pins, they should be connected to a precision reference source
 like LM336. It is recommended to use a good LDO regulator chip otherwise.
 • Unused ADC pins should not be configured or disabled. This will reduce power consumption.
-• Rather taking single samples, ADC readings should be sampled at fixed regular intervals and
-averaged to get rid of minute fluctuations in readings.
+• Rather taking single samples, ADC readings should be sampled at fixed regular intervals and averaged to get rid of minute fluctuations in readings.
 • Right-justified data alignment should be used as it is most convenient to use.
 • PCB/wire tracks leading to ADC channels must be short to reduce interference effects.
 
 */
 // ADC1_CONVERSIONMODE_SINGLE
 // ADC1_CONVERSIONMODE_CONTINUOUS
+
+/*
+Single mode seems to take the last reading(buff 1) and pass that to both 
+outputs, leftchannel and delay.
+
+continuous mode seems to take the buffer 0 one and ignore buffer 1 and pass that to leftchannel and delay
+
+*/
 void ADC1_setup(void)
 {
   ADC1_DeInit();
 
-  ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, \
+  ADC1_Init(ADC1_CONVERSIONMODE_SINGLE, \
   ADC1_CHANNEL_0,\
   ADC1_PRESSEL_FCPU_D18, \
   ADC1_EXTTRIG_GPIO, \
@@ -669,7 +676,7 @@ void ADC1_setup(void)
   ADC1_SCHMITTTRIG_CHANNEL0, \
   DISABLE);
 
-  ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, \
+  ADC1_Init(ADC1_CONVERSIONMODE_SINGLE, \
   ADC1_CHANNEL_1,\
   ADC1_PRESSEL_FCPU_D18, \
   ADC1_EXTTRIG_GPIO, \
@@ -678,7 +685,7 @@ void ADC1_setup(void)
   ADC1_SCHMITTTRIG_CHANNEL1, \
   DISABLE);
 
-  ADC1_ConversionConfig(ADC1_CONVERSIONMODE_CONTINUOUS, ((ADC1_Channel_TypeDef)(ADC1_CHANNEL_0 | ADC1_CHANNEL_1)), ADC1_ALIGN_RIGHT);
+  ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, ((ADC1_Channel_TypeDef)(ADC1_CHANNEL_0 | ADC1_CHANNEL_1)), ADC1_ALIGN_RIGHT);
 
   ADC1_DataBufferCmd(ENABLE);
   ADC1_Cmd(ENABLE);
