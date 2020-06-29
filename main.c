@@ -150,9 +150,9 @@ void clock_setup(void)
 {
   CLK_DeInit();
 
-  CLK_HSECmd(DISABLE);
+  CLK_HSECmd(DISABLE); // DISABLE ->24MHz ext, what do i have 16?
   CLK_LSICmd(DISABLE);
-  CLK_HSICmd(ENABLE);
+  CLK_HSICmd(ENABLE);   //ENABLE, 16MHz internal
   while(CLK_GetFlagStatus(CLK_FLAG_HSIRDY) == FALSE);
 
   CLK_ClockSwitchCmd(ENABLE);
@@ -174,24 +174,7 @@ void clock_setup(void)
 
 void GPIO_setup(void)
 {
-  GPIO_DeInit(GPIOC);
-  //GPIO_Init(GPIOC, ((GPIO_Pin_TypeDef)GPIO_PIN_5 | GPIO_PIN_6), GPIO_MODE_OUT_PP_HIGH_FAST);
-
-// ADC, we have to set out ADC pin as a floating GPIO with no interrupt capability:
-  //adc pin b0
-    GPIO_DeInit(ADC_port);
-  //GPIO_Init(GPIOB, GPIO_PIN_0, GPIO_MODE_IN_FL_NO_IT);
-
-    //more adc pins
-    // GPIO_Init(GPIOB, GPIO_PIN_0 | GPIO_PIN_0  , GPIO_MODE_IN_FL_NO_IT);
-    // ADC gpio's for scan mode
-    GPIO_Init(ADC_port, ADC_Multichannel_pins, GPIO_MODE_IN_FL_NO_IT);
-
-  //GPIO_Init(LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
-
-    // C5=sck  C6=mosi
-    GPIO_Init(GPIOC, ((GPIO_Pin_TypeDef)GPIO_PIN_5 | GPIO_PIN_6 ),
-               GPIO_MODE_OUT_PP_HIGH_FAST);
+    //GPIO_Init(LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
 }
 
 /*
@@ -222,6 +205,11 @@ continuous mode seems to take the buffer 0 one and ignore buffer 1 and pass that
 */
 void ADC1_setup(void)
 {
+  // ADC, we have to set out ADC pin as a floating GPIO with no interrupt capability:
+  // ADC gpio's for scan mode
+  GPIO_DeInit(ADC_port);
+  GPIO_Init(ADC_port, ADC_Multichannel_pins, GPIO_MODE_IN_FL_NO_IT);
+  
   ADC1_DeInit();
 
   ADC1_Init(ADC1_CONVERSIONMODE_SINGLE, \
@@ -263,13 +251,18 @@ void TIM2_setup(void)
 */
 
 
-
-void SPI_setup(void)
-{
-  SPI_DeInit();
-
+/*
+* I think sets up SPI at 1MHz
+* i'm guessing NSS_SOFT is no cs pin...
     //SPI_CLOCKPOLARITY_HIGH, \
     //SPI_CLOCKPOLARITY_LOW clock goes low(idle) to high
+*/
+void SPI_setup(void)
+{
+  // C5=sck  C6=mosi
+  GPIO_Init(SPI_PORT, (GPIO_Pin_TypeDef)(SPI_CLK | SPI_MOSI | SPI_MISO), GPIO_MODE_OUT_PP_HIGH_FAST);
+    
+  SPI_DeInit();
 
   SPI_Init(SPI_FIRSTBIT_MSB, \
     SPI_BAUDRATEPRESCALER_16, \

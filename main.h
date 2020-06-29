@@ -24,18 +24,25 @@
 
 #include "stm8s.h"
 
-#define LED_pin                     GPIO_PIN_4 // is this used anymore?
+// is this used anymore?
+#define LED_pin                     GPIO_PIN_4 
 #define LED_port                    GPIOD
 
-//DAC
+//SPI uC
+#define SPI_PORT                    GPIOC
+#define SPI_CLK                     GPIO_PIN_5
+#define SPI_MOSI                    GPIO_PIN_6
+#define SPI_MISO                    GPIO_PIN_7
+
+//SPI DAC
 #define DAC_CS_pin                  GPIO_PIN_4
 #define DAC_CS_port                 GPIOC
 
-//SPI
+//SPI RAM
 #define RAM_CS_pin                  GPIO_PIN_1
 #define RAM_CS_port                 GPIOA
 
-//ADC
+//uC ADC
 #define ADC_port                    GPIOB
 #define ADC_LEFTCHANNEL_IN_pin      GPIO_PIN_0 // % ??
 #define ADC_LEFTCHANNEL             0
@@ -52,6 +59,6 @@
 #define ADC_ELSE_pin                GPIO_PIN_4 // not used so far
 #define ADC_ELSE                    4
 
-#define ADC_Multichannel_pins                   ((GPIO_Pin_TypeDef)(ADC_LEFTCHANNEL_IN_pin | ADC_FEEDBACK_AMOUNT_pin | ADC_DELAY_LENGTH_pin | ADC_DRYWETMIX_pin ))
+#define ADC_Multichannel_pins       ((GPIO_Pin_TypeDef)(ADC_LEFTCHANNEL_IN_pin | ADC_FEEDBACK_AMOUNT_pin | ADC_DELAY_LENGTH_pin | ADC_DRYWETMIX_pin ))
 
 #endif /* __MAIN_H__ */

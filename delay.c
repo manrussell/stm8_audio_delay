@@ -12,8 +12,8 @@
 #include "delay.h"
 
 //stm_delay.h
-#define F_CPU               2000000UL
-#define dly_const           (F_CPU / 16000000.0F)
+#define F_CPU               2000000UL               // this must be garbage
+#define dly_const           (F_CPU / 16000000.0F)   // this must be garbage
 
 void delay_us_old( unsigned int value )
 {

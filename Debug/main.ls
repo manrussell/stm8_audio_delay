@@ -26,9 +26,9 @@
  182                     ; 83     GPIO_setup();
  184  000b cd00e2        	call	_GPIO_setup
  186                     ; 84     ADC1_setup();
- 188  000e cd0105        	call	_ADC1_setup
+ 188  000e cd00e3        	call	_ADC1_setup
  190                     ; 85     SPI_setup();
- 192  0011 cd0141        	call	_SPI_setup
+ 192  0011 cd0130        	call	_SPI_setup
  194                     ; 86     MCP_23K256_RAM_init();
  196  0014 cd0000        	call	_MCP_23K256_RAM_init
  198                     ; 87     MCP4901_DAC_init();
@@ -111,13 +111,13 @@
  343  0082               _clock_setup:
  347                     ; 151   CLK_DeInit();
  349  0082 cd0000        	call	_CLK_DeInit
- 351                     ; 153   CLK_HSECmd(DISABLE);
+ 351                     ; 153   CLK_HSECmd(DISABLE); // DISABLE ->24MHz ext, what do i have 16?
  353  0085 4f            	clr	a
  354  0086 cd0000        	call	_CLK_HSECmd
  356                     ; 154   CLK_LSICmd(DISABLE);
  358  0089 4f            	clr	a
  359  008a cd0000        	call	_CLK_LSICmd
- 361                     ; 155   CLK_HSICmd(ENABLE);
+ 361                     ; 155   CLK_HSICmd(ENABLE);   //ENABLE, 16MHz internal
  363  008d a601          	ld	a,#1
  364  008f cd0000        	call	_CLK_HSICmd
  367  0092               L311:
@@ -166,144 +166,140 @@
  435  00dc ae0401        	ldw	x,#1025
  437                     ; 173 }
  440  00df cc0000        	jp	_CLK_PeripheralClockConfig
- 465                     ; 175 void GPIO_setup(void)
- 465                     ; 176 {
- 466                     	switch	.text
- 467  00e2               _GPIO_setup:
- 471                     ; 177   GPIO_DeInit(GPIOC);
- 473  00e2 ae500a        	ldw	x,#20490
- 474  00e5 cd0000        	call	_GPIO_DeInit
- 476                     ; 182     GPIO_DeInit(ADC_port);
- 478  00e8 ae5005        	ldw	x,#20485
- 479  00eb cd0000        	call	_GPIO_DeInit
- 481                     ; 188     GPIO_Init(ADC_port, ADC_Multichannel_pins, GPIO_MODE_IN_FL_NO_IT);
- 483  00ee 4b00          	push	#0
- 484  00f0 4b0f          	push	#15
- 485  00f2 ae5005        	ldw	x,#20485
- 486  00f5 cd0000        	call	_GPIO_Init
- 488  00f8 85            	popw	x
- 489                     ; 193     GPIO_Init(GPIOC, ((GPIO_Pin_TypeDef)GPIO_PIN_5 | GPIO_PIN_6 ),
- 489                     ; 194                GPIO_MODE_OUT_PP_HIGH_FAST);
- 491  00f9 4bf0          	push	#240
- 492  00fb 4b60          	push	#96
- 493  00fd ae500a        	ldw	x,#20490
- 494  0100 cd0000        	call	_GPIO_Init
- 496  0103 85            	popw	x
- 497                     ; 195 }
- 500  0104 81            	ret	
- 528                     ; 223 void ADC1_setup(void)
- 528                     ; 224 {
- 529                     	switch	.text
- 530  0105               _ADC1_setup:
- 534                     ; 225   ADC1_DeInit();
- 536  0105 cd0000        	call	_ADC1_DeInit
- 538                     ; 227   ADC1_Init(ADC1_CONVERSIONMODE_SINGLE, \
- 538                     ; 228   ADC1_CHANNEL_0,\
- 538                     ; 229   ADC1_PRESSEL_FCPU_D18, \
- 538                     ; 230   ADC1_EXTTRIG_GPIO, \
- 538                     ; 231   DISABLE, \
- 538                     ; 232   ADC1_ALIGN_RIGHT, \
- 538                     ; 233   ADC1_SCHMITTTRIG_CHANNEL0, \
- 538                     ; 234   DISABLE);
- 540  0108 4b00          	push	#0
- 541  010a 4b00          	push	#0
- 542  010c 4b08          	push	#8
- 543  010e 4b00          	push	#0
- 544  0110 4b10          	push	#16
- 545  0112 4b70          	push	#112
- 546  0114 5f            	clrw	x
- 547  0115 cd0000        	call	_ADC1_Init
- 549  0118 5b06          	addw	sp,#6
- 550                     ; 236   ADC1_Init(ADC1_CONVERSIONMODE_SINGLE, \
- 550                     ; 237   ADC1_CHANNEL_1,\
- 550                     ; 238   ADC1_PRESSEL_FCPU_D18, \
- 550                     ; 239   ADC1_EXTTRIG_GPIO, \
- 550                     ; 240   DISABLE, \
- 550                     ; 241   ADC1_ALIGN_RIGHT, \
- 550                     ; 242   ADC1_SCHMITTTRIG_CHANNEL1, \
- 550                     ; 243   DISABLE);
- 552  011a 4b00          	push	#0
- 553  011c 4b01          	push	#1
- 554  011e 4b08          	push	#8
- 555  0120 4b00          	push	#0
- 556  0122 4b10          	push	#16
- 557  0124 4b70          	push	#112
- 558  0126 ae0001        	ldw	x,#1
- 559  0129 cd0000        	call	_ADC1_Init
- 561  012c 5b06          	addw	sp,#6
- 562                     ; 245   ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, ((ADC1_Channel_TypeDef)(ADC1_CHANNEL_0 | ADC1_CHANNEL_1)), ADC1_ALIGN_RIGHT);
- 564  012e 4b08          	push	#8
- 565  0130 ae0001        	ldw	x,#1
- 566  0133 cd0000        	call	_ADC1_ConversionConfig
- 568  0136 84            	pop	a
- 569                     ; 247   ADC1_DataBufferCmd(ENABLE);
- 571  0137 a601          	ld	a,#1
- 572  0139 cd0000        	call	_ADC1_DataBufferCmd
- 574                     ; 248   ADC1_Cmd(ENABLE);
- 576  013c a601          	ld	a,#1
- 578                     ; 250 }
- 581  013e cc0000        	jp	_ADC1_Cmd
- 607                     ; 267 void SPI_setup(void)
- 607                     ; 268 {
- 608                     	switch	.text
- 609  0141               _SPI_setup:
- 613                     ; 269   SPI_DeInit();
- 615  0141 cd0000        	call	_SPI_DeInit
- 617                     ; 274   SPI_Init(SPI_FIRSTBIT_MSB, \
- 617                     ; 275     SPI_BAUDRATEPRESCALER_16, \
- 617                     ; 276     SPI_MODE_MASTER, \
- 617                     ; 277     SPI_CLOCKPOLARITY_LOW, \
- 617                     ; 278     SPI_CLOCKPHASE_1EDGE, \
- 617                     ; 279     SPI_DATADIRECTION_2LINES_FULLDUPLEX, \
- 617                     ; 280     SPI_NSS_SOFT, \
- 617                     ; 281     0x0);
- 619  0144 4b00          	push	#0
- 620  0146 4b02          	push	#2
- 621  0148 4b00          	push	#0
- 622  014a 4b00          	push	#0
- 623  014c 4b00          	push	#0
- 624  014e 4b04          	push	#4
- 625  0150 ae0018        	ldw	x,#24
- 626  0153 cd0000        	call	_SPI_Init
- 628  0156 5b06          	addw	sp,#6
- 629                     ; 283   SPI_Cmd(ENABLE);
- 631  0158 a601          	ld	a,#1
- 633                     ; 284 }
- 636  015a cc0000        	jp	_SPI_Cmd
- 649                     	xdef	_main
- 650                     	xdef	_ADC1_setup
- 651                     	xdef	_SPI_setup
- 652                     	xdef	_GPIO_setup
- 653                     	xdef	_clock_setup
- 654                     	xref	_MCP_23K256_RAM_read_byte
- 655                     	xref	_MCP_23K256_RAM_write_byte
- 656                     	xref	_MCP_23K256_RAM_init
- 657                     	xref	_MCP4901_DAC_write
- 658                     	xref	_MCP4901_DAC_init
- 659                     	xref	_delay_us
- 660                     	xref	_SPI_Cmd
- 661                     	xref	_SPI_Init
- 662                     	xref	_SPI_DeInit
- 663                     	xref	_GPIO_Init
- 664                     	xref	_GPIO_DeInit
- 665                     	xref	_CLK_GetFlagStatus
- 666                     	xref	_CLK_SYSCLKConfig
- 667                     	xref	_CLK_HSIPrescalerConfig
- 668                     	xref	_CLK_ClockSwitchConfig
- 669                     	xref	_CLK_PeripheralClockConfig
- 670                     	xref	_CLK_ClockSwitchCmd
- 671                     	xref	_CLK_LSICmd
- 672                     	xref	_CLK_HSICmd
- 673                     	xref	_CLK_HSECmd
- 674                     	xref	_CLK_DeInit
- 675                     	xref	_ADC1_ClearFlag
- 676                     	xref	_ADC1_GetFlagStatus
- 677                     	xref	_ADC1_GetBufferValue
- 678                     	xref	_ADC1_StartConversion
- 679                     	xref	_ADC1_ConversionConfig
- 680                     	xref	_ADC1_DataBufferCmd
- 681                     	xref	_ADC1_ScanModeCmd
- 682                     	xref	_ADC1_Cmd
- 683                     	xref	_ADC1_Init
- 684                     	xref	_ADC1_DeInit
- 703                     	end
+ 463                     ; 175 void GPIO_setup(void)
+ 463                     ; 176 {
+ 464                     	switch	.text
+ 465  00e2               _GPIO_setup:
+ 469                     ; 178 }
+ 472  00e2 81            	ret	
+ 502                     ; 206 void ADC1_setup(void)
+ 502                     ; 207 {
+ 503                     	switch	.text
+ 504  00e3               _ADC1_setup:
+ 508                     ; 210   GPIO_DeInit(ADC_port);
+ 510  00e3 ae5005        	ldw	x,#20485
+ 511  00e6 cd0000        	call	_GPIO_DeInit
+ 513                     ; 211   GPIO_Init(ADC_port, ADC_Multichannel_pins, GPIO_MODE_IN_FL_NO_IT);
+ 515  00e9 4b00          	push	#0
+ 516  00eb 4b0f          	push	#15
+ 517  00ed ae5005        	ldw	x,#20485
+ 518  00f0 cd0000        	call	_GPIO_Init
+ 520  00f3 85            	popw	x
+ 521                     ; 213   ADC1_DeInit();
+ 523  00f4 cd0000        	call	_ADC1_DeInit
+ 525                     ; 215   ADC1_Init(ADC1_CONVERSIONMODE_SINGLE, \
+ 525                     ; 216   ADC1_CHANNEL_0,\
+ 525                     ; 217   ADC1_PRESSEL_FCPU_D18, \
+ 525                     ; 218   ADC1_EXTTRIG_GPIO, \
+ 525                     ; 219   DISABLE, \
+ 525                     ; 220   ADC1_ALIGN_RIGHT, \
+ 525                     ; 221   ADC1_SCHMITTTRIG_CHANNEL0, \
+ 525                     ; 222   DISABLE);
+ 527  00f7 4b00          	push	#0
+ 528  00f9 4b00          	push	#0
+ 529  00fb 4b08          	push	#8
+ 530  00fd 4b00          	push	#0
+ 531  00ff 4b10          	push	#16
+ 532  0101 4b70          	push	#112
+ 533  0103 5f            	clrw	x
+ 534  0104 cd0000        	call	_ADC1_Init
+ 536  0107 5b06          	addw	sp,#6
+ 537                     ; 224   ADC1_Init(ADC1_CONVERSIONMODE_SINGLE, \
+ 537                     ; 225   ADC1_CHANNEL_1,\
+ 537                     ; 226   ADC1_PRESSEL_FCPU_D18, \
+ 537                     ; 227   ADC1_EXTTRIG_GPIO, \
+ 537                     ; 228   DISABLE, \
+ 537                     ; 229   ADC1_ALIGN_RIGHT, \
+ 537                     ; 230   ADC1_SCHMITTTRIG_CHANNEL1, \
+ 537                     ; 231   DISABLE);
+ 539  0109 4b00          	push	#0
+ 540  010b 4b01          	push	#1
+ 541  010d 4b08          	push	#8
+ 542  010f 4b00          	push	#0
+ 543  0111 4b10          	push	#16
+ 544  0113 4b70          	push	#112
+ 545  0115 ae0001        	ldw	x,#1
+ 546  0118 cd0000        	call	_ADC1_Init
+ 548  011b 5b06          	addw	sp,#6
+ 549                     ; 233   ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, ((ADC1_Channel_TypeDef)(ADC1_CHANNEL_0 | ADC1_CHANNEL_1)), ADC1_ALIGN_RIGHT);
+ 551  011d 4b08          	push	#8
+ 552  011f ae0001        	ldw	x,#1
+ 553  0122 cd0000        	call	_ADC1_ConversionConfig
+ 555  0125 84            	pop	a
+ 556                     ; 235   ADC1_DataBufferCmd(ENABLE);
+ 558  0126 a601          	ld	a,#1
+ 559  0128 cd0000        	call	_ADC1_DataBufferCmd
+ 561                     ; 236   ADC1_Cmd(ENABLE);
+ 563  012b a601          	ld	a,#1
+ 565                     ; 238 }
+ 568  012d cc0000        	jp	_ADC1_Cmd
+ 595                     ; 260 void SPI_setup(void)
+ 595                     ; 261 {
+ 596                     	switch	.text
+ 597  0130               _SPI_setup:
+ 601                     ; 263   GPIO_Init(SPI_PORT, (GPIO_Pin_TypeDef)(SPI_CLK | SPI_MOSI | SPI_MISO), GPIO_MODE_OUT_PP_HIGH_FAST);
+ 603  0130 4bf0          	push	#240
+ 604  0132 4be0          	push	#224
+ 605  0134 ae500a        	ldw	x,#20490
+ 606  0137 cd0000        	call	_GPIO_Init
+ 608  013a 85            	popw	x
+ 609                     ; 265   SPI_DeInit();
+ 611  013b cd0000        	call	_SPI_DeInit
+ 613                     ; 267   SPI_Init(SPI_FIRSTBIT_MSB, \
+ 613                     ; 268     SPI_BAUDRATEPRESCALER_16, \
+ 613                     ; 269     SPI_MODE_MASTER, \
+ 613                     ; 270     SPI_CLOCKPOLARITY_LOW, \
+ 613                     ; 271     SPI_CLOCKPHASE_1EDGE, \
+ 613                     ; 272     SPI_DATADIRECTION_2LINES_FULLDUPLEX, \
+ 613                     ; 273     SPI_NSS_SOFT, \
+ 613                     ; 274     0x0);
+ 615  013e 4b00          	push	#0
+ 616  0140 4b02          	push	#2
+ 617  0142 4b00          	push	#0
+ 618  0144 4b00          	push	#0
+ 619  0146 4b00          	push	#0
+ 620  0148 4b04          	push	#4
+ 621  014a ae0018        	ldw	x,#24
+ 622  014d cd0000        	call	_SPI_Init
+ 624  0150 5b06          	addw	sp,#6
+ 625                     ; 276   SPI_Cmd(ENABLE);
+ 627  0152 a601          	ld	a,#1
+ 629                     ; 277 }
+ 632  0154 cc0000        	jp	_SPI_Cmd
+ 645                     	xdef	_main
+ 646                     	xdef	_ADC1_setup
+ 647                     	xdef	_SPI_setup
+ 648                     	xdef	_GPIO_setup
+ 649                     	xdef	_clock_setup
+ 650                     	xref	_MCP_23K256_RAM_read_byte
+ 651                     	xref	_MCP_23K256_RAM_write_byte
+ 652                     	xref	_MCP_23K256_RAM_init
+ 653                     	xref	_MCP4901_DAC_write
+ 654                     	xref	_MCP4901_DAC_init
+ 655                     	xref	_delay_us
+ 656                     	xref	_SPI_Cmd
+ 657                     	xref	_SPI_Init
+ 658                     	xref	_SPI_DeInit
+ 659                     	xref	_GPIO_Init
+ 660                     	xref	_GPIO_DeInit
+ 661                     	xref	_CLK_GetFlagStatus
+ 662                     	xref	_CLK_SYSCLKConfig
+ 663                     	xref	_CLK_HSIPrescalerConfig
+ 664                     	xref	_CLK_ClockSwitchConfig
+ 665                     	xref	_CLK_PeripheralClockConfig
+ 666                     	xref	_CLK_ClockSwitchCmd
+ 667                     	xref	_CLK_LSICmd
+ 668                     	xref	_CLK_HSICmd
+ 669                     	xref	_CLK_HSECmd
+ 670                     	xref	_CLK_DeInit
+ 671                     	xref	_ADC1_ClearFlag
+ 672                     	xref	_ADC1_GetFlagStatus
+ 673                     	xref	_ADC1_GetBufferValue
+ 674                     	xref	_ADC1_StartConversion
+ 675                     	xref	_ADC1_ConversionConfig
+ 676                     	xref	_ADC1_DataBufferCmd
+ 677                     	xref	_ADC1_ScanModeCmd
+ 678                     	xref	_ADC1_Cmd
+ 679                     	xref	_ADC1_Init
+ 680                     	xref	_ADC1_DeInit
+ 699                     	end
