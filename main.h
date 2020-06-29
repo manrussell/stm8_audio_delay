@@ -8,6 +8,19 @@
 
 #ifndef __MAIN_H__
 #define __MAIN_H__
+/*
+    Pins uC
+    =======
+    from stm8CubeMx...
+
+    spi sclk pc-5
+    spi sdi pc-6
+    spi spo pc-7
+
+    spi cs ram chip pa-1
+    spi cs dac cip pc-4
+
+*/
 
 #include "stm8s.h"
 

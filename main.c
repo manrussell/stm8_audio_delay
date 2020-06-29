@@ -24,23 +24,15 @@
   *
   ******************************************************************************
   */
-
-    /*
-        Pins uC
-        =======
-from stm8CubeMx...
-
-        spi sclk pc-5
-        spi sdi pc-6
-        spi spo pc-7
-
-        spi cs ram chip pa-1
-        spi cs dac cip pc-4
-
-    */
 /*
-I might have borken all the Test functions now i am using multichannel ADC's
-Why do the spi finction need a delay_us(1) -> is the caputre flag set correctly?
+* I might have borken all the Test functions now i am using multichannel ADC's
+* Why do the spi function need a delay_us(1) -> is the caputre flag set correctly?
+
+* I think the clocks are set wrong! HSI not HSE, check it out
+* check out the cs pin for spi, do i need to init my own gpio?
+* check for any extra gpio hat might have been used, and are redundant.
+* revie tests
+
 */
 
 /* Includes ------------------------------------------------------------------*/
@@ -93,31 +85,6 @@ void main( void )
     SPI_setup();
     MCP_23K256_RAM_init();
     MCP4901_DAC_init();
-
-/*
-    res = TEST_ram_test_001();
-    if(res != 0)
-    {
-        while(1);
-    }
-
-    TEST_adc_to_dac(&adc_val);
-
-    res = TEST_rampfunc_in_ram_to_dac();
-    if(res != 0)
-    {
-        while(1);
-    }
-
-    TEST_adc_to_ram_to_dac();
-
-    TEST_adc_to_ram_to_dac_with_delay();
-
-    TEST_adc_to_ram_to_dac_with_with_fback();
-*/
-
-    //TEST_rampfunc_in_ram_to_dac();
-
 
   /* Infinite loop */
   while (1)
@@ -200,8 +167,8 @@ void clock_setup(void)
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_AWU, DISABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC, ENABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER1, DISABLE);
-  CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2, ENABLE);
-  CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER4, DISABLE);
+  CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2, DISABLE);
+  CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER4, ENABLE);
 
 }
 
@@ -284,22 +251,16 @@ void ADC1_setup(void)
 
 
 
-
+/*
 void TIM2_setup(void)
 {
-  /*
   TIM2_DeInit();
   TIM2_TimeBaseInit(TIM2_PRESCALER_32, 1000);
   TIM2_OC1Init(TIM2_OCMODE_PWM1, TIM2_OUTPUTSTATE_ENABLE, 1000, TIM2_OCPOLARITY_HIGH);
   TIM2_Cmd(ENABLE);
-  */
-
-/* one timer for us, incase we need it, */
-/* one interrupt timer, */
-
 
 }
-
+*/
 
 
 

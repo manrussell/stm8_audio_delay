@@ -11,9 +11,11 @@
 
 #include "stm8s.h"
 
-void delay_us( unsigned int value );
-void delay_ms( unsigned int value );
-void delay_us_new( unsigned int us );
-void delay_ms_new( unsigned int ms );
+void delay_us( unsigned int us );
+void delay_ms( unsigned int ms );
+
+// below delays use 'nops' and were used during development
+void delay_us_old( unsigned int value );
+void delay_ms_old( unsigned int value );
 
 #endif /* __DELAY_H__ */

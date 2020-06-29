@@ -15,7 +15,7 @@
 #define F_CPU               2000000UL
 #define dly_const           (F_CPU / 16000000.0F)
 
-void delay_us( unsigned int value )
+void delay_us_old( unsigned int value )
 {
     register unsigned int loops = ( dly_const * value );
 
@@ -26,7 +26,7 @@ void delay_us( unsigned int value )
     };
 }
 
-void delay_ms( unsigned int value )
+void delay_ms_old( unsigned int value )
 {
     while(value)
     {
@@ -38,7 +38,7 @@ void delay_ms( unsigned int value )
 
 /* Blocking delay
 */
-void delay_us_new( unsigned int us )
+void delay_us( unsigned int us )
 {
     TIM4_DeInit();
 
@@ -73,7 +73,7 @@ void delay_us_new( unsigned int us )
 
 /* Blocking delay
 */
-void delay_ms_new( unsigned int ms )
+void delay_ms( unsigned int ms )
 {
     while(ms--)
     {

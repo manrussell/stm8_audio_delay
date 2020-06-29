@@ -20,6 +20,32 @@ ERRRM why am i using a gpio, isn't there a cs pin that i can use
 #include "mcp_23k256_spi_ram.h"
 #include "tests_hw.h"
 
+
+/*
+    res = TEST_ram_test_001();
+    if(res != 0)
+    {
+        while(1);
+    }
+
+    TEST_adc_to_dac(&adc_val);
+
+    res = TEST_rampfunc_in_ram_to_dac();
+    if(res != 0)
+    {
+        while(1);
+    }
+
+    TEST_adc_to_ram_to_dac();
+
+    TEST_adc_to_ram_to_dac_with_delay();
+
+    TEST_adc_to_ram_to_dac_with_with_fback();
+*/
+
+    //TEST_rampfunc_in_ram_to_dac();
+    
+    
 /*
     void MCP_23K256_read_status_register(uint8_t *data);
     void MCP_23K256_write_status_register(uint8_t data);
