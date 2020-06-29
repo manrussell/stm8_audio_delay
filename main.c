@@ -253,15 +253,13 @@ void TIM2_setup(void)
 
 /*
 * I think sets up SPI at 1MHz
+* When the master is communicating with SPI slaves which need to be deselected between transmissions, the NSS pin must be configured as a GPIO.
 * i'm guessing NSS_SOFT is no cs pin...
-    //SPI_CLOCKPOLARITY_HIGH, \
-    //SPI_CLOCKPOLARITY_LOW clock goes low(idle) to high
 */
 void SPI_setup(void)
 {
-  // C5=sck  C6=mosi
   GPIO_Init(SPI_PORT, (GPIO_Pin_TypeDef)(SPI_CLK | SPI_MOSI | SPI_MISO), GPIO_MODE_OUT_PP_HIGH_FAST);
-    
+  
   SPI_DeInit();
 
   SPI_Init(SPI_FIRSTBIT_MSB, \
