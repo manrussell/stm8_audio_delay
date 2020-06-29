@@ -45,39 +45,11 @@ Why do the spi finction need a delay_us(1) -> is the caputre flag set correctly?
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm8s.h"
+#include "main.h"
 #include "delay.h"
 //#include "mcp_23k256_spi_ram.h"
 
 /* Private defines -----------------------------------------------------------*/
-#define LED_pin                     GPIO_PIN_4
-#define LED_port                    GPIOD
-
-#define DAC_CS_pin                  GPIO_PIN_4
-#define DAC_CS_port                 GPIOC
-
-#define RAM_CS_pin                  GPIO_PIN_1
-#define RAM_CS_port                 GPIOA
-
-//ADC
-#define ADC_port                    GPIOB
-#define ADC_LEFTCHANNEL_IN_pin      GPIO_PIN_0 // % ??
-#define ADC_LEFTCHANNEL             0
-
-#define ADC_FEEDBACK_AMOUNT_pin     GPIO_PIN_1 // % ??
-#define ADC_FEEDBACK_AMOUNT         1
-
-#define ADC_DELAY_LENGTH_pin        GPIO_PIN_2 // ms ??
-#define ADC_DELAY_LENGTH            2
-
-#define ADC_DRYWETMIX_pin           GPIO_PIN_3
-#define ADC_DRYWETMIX               3
-
-#define ADC_ELSE_pin                GPIO_PIN_4 // not used so far
-#define ADC_ELSE                    4
-
-#define ADC_Multichannel_pins                   ((GPIO_Pin_TypeDef)(ADC_LEFTCHANNEL_IN_pin | ADC_FEEDBACK_AMOUNT_pin | ADC_DELAY_LENGTH_pin | ADC_DRYWETMIX_pin ))
-
-
 
 
 /*
@@ -118,9 +90,6 @@ void MCP_23K256_RAM_write_byte(uint16_t address, unsigned char value);
 // status registers
 void MCP_23K256_read_status_register(uint8_t *data);
 void MCP_23K256_write_status_register(uint8_t data);
-
-void delay_us(unsigned int value);
-void delay_ms(unsigned int value);
 
 //tests, used while setting up hardware.
 uint8_t TEST_ram_test_001(void);
