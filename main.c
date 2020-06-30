@@ -28,10 +28,10 @@
 * I might have borken all the Test functions now i am using multichannel ADC's
 * Why do the spi function need a delay_us(1) -> is the caputre flag set correctly?
 
-* I think the clocks are set wrong! HSI not HSE, check it out
-* check out the cs pin for spi, do i need to init my own gpio?
+* I think the clocks are set wrong! HSI not HSE, check it out, hmm maybe my ext clock is 8MHz.
+* check out the cs pin for spi, do i need to init my own gpio? yes
 * check for any extra gpio hat might have been used, and are redundant.
-* revie tests
+* review tests
 
 */
 
@@ -45,11 +45,6 @@
 
 /* Private defines -----------------------------------------------------------*/
 
-
-/*
-put all gpio stuff here ie MOSI/MISO stuff don't leav it in the init function
-*/
-
 /* Private function prototypes -----------------------------------------------*/
 void setup(void);
 void clock_setup(void);
@@ -57,15 +52,11 @@ void GPIO_setup(void);
 void SPI_setup(void);
 void ADC1_setup(void);
 void TIM2_setup(void);
-void SPI_setup(void);
-
-//spi device 1 DAC
-
-//spi device 2 RAM
 
 //tests, used while setting up hardware.
 
 /* Private functions ---------------------------------------------------------*/
+uint8_t state = 0; /* updated by Tim2 timer interrupt function */
 
 void main( void )
 {
@@ -79,72 +70,110 @@ void main( void )
     uint16_t delay           = 110;  // length of delay in samples
     uint8_t  res             = 0;
 
-    clock_setup();
-    GPIO_setup();
-    ADC1_setup();
-    SPI_setup();
-    MCP_23K256_RAM_init();
-    MCP4901_DAC_init();
+    uint16_t delay_length_samples[NUM_Of_ADCPOT_SAMPLES] = {0}; // 4 samples of the pot are calculated
+
+    clock_setup( );
+    GPIO_setup( );
+    ADC1_setup( );
+    SPI_setup( );
+    MCP_23K256_RAM_init( );
+    MCP4901_DAC_init( );
     TIM2_setup( );
 
   /* Infinite loop */
   while (1)
   {
-        // multi channel ADC's
-            // how long does the scantake? meaaure this start/stop -> gpio-> oscilloscope
-            // will want to separate the knobs from signal input,
-            //
-        ADC1_ScanModeCmd( ENABLE );
-        ADC1_StartConversion( );
-        while( ADC1_GetFlagStatus( ADC1_FLAG_EOC ) == FALSE );
-        ADC1_ClearFlag(ADC1_FLAG_EOC);
-        adc_leftChannel = ADC1_GetBufferValue( 0); //ADC_LEFTCHANNEL );     // 0
-        adc_delay       = ADC1_GetBufferValue( 1); //ADC_FEEDBACK_AMOUNT ); // 1
-        //adc_delay       = ADC1_GetBufferValue( ADC_DELAY_LENGTH );
-        //ADC1_ClearFlag( ADC1_FLAG_EOC );
-
-        //untested: set delay length (vari length delay) using adc
-        delay = ( adc_delay << 2 ); //(adc_delay >> 2);
-
-    // map function 10bit to 8bit
-        // (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-        // input range 0-1024 out range 0-255 therefore
-        // slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
-        // function simplfys down to
-        mapd_value = (adc_leftChannel >> 2);
-
-        //with feedback 50% wet
-        mapd_value = mapd_value/2 +  read_val/2;
-
-    // sort out read addresses
-        if( (write_addr - delay) < 0)
+        switch( state )
         {
-            //start up situation
-            read_addr = SRAM_SIZE - delay + write_addr;
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                /* Read ADC's of pots and store in array */
+                // multi channel ADC's
+                // how long does the scantake? meaaure this start/stop -> gpio-> oscilloscope
+                // will want to separate the knobs from signal input,
+                //
+                ADC1_ScanModeCmd( ENABLE );
+                ADC1_StartConversion( );
+                while( ADC1_GetFlagStatus( ADC1_FLAG_EOC ) == FALSE );
+                ADC1_ClearFlag( ADC1_FLAG_EOC );
+                //adc_leftChannel = ADC1_GetBufferValue( 0 ); //ADC_LEFTCHANNEL );
+                adc_delay  = ADC1_GetBufferValue( 1 ); //ADC_FEEDBACK_AMOUNT );
+                //adc_delay = ADC1_GetBufferValue( ADC_DELAY_LENGTH );
+
+                //ADC1_ClearFlag( ADC1_FLAG_EOC );
+
+                //set delay buffer length, longer == longer delay
+                delay = ( adc_delay << 2 );
+                delay_length_samples[ state ] = ( adc_delay << 2 );
+
+                break;
+            case 4:
+            case 5:
+            case 6:
+                /* do nothing */
+                break;
+            case 7:
+                /* do average of ADC pots values */
+                // how long does this take?
+                // this seems to break, is the maths? do i need a bigger type, or to cast?
+                //delay = ( delay_length_samples[0] + delay_length_samples[1] + delay_length_samples[2] + delay_length_samples[3] ) / NUM_Of_ADCPOT_SAMPLES;
+                break;
+            case 8:
+                /* Sample Audio ADC, process, write to DAC */
+                //sample audio input
+                ADC1_ScanModeCmd( ENABLE );
+                ADC1_StartConversion( );
+                while( ADC1_GetFlagStatus( ADC1_FLAG_EOC ) == FALSE );
+                ADC1_ClearFlag(ADC1_FLAG_EOC);
+                adc_leftChannel = ADC1_GetBufferValue( 0 ); //ADC_LEFTCHANNEL );
+
+                // map function 10bit to 8bit
+                // (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+                // input range 0-1024 out range 0-255 therefore
+                // slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
+                // function simplfys down to
+                mapd_value = (adc_leftChannel >> 2);
+
+                //with feedback 50% wet
+                mapd_value = mapd_value/2 +  read_val/2;
+
+                // sort out read addresses
+                if( (write_addr - delay) < 0)
+                {
+                    //start up situation
+                    read_addr = SRAM_SIZE - delay + write_addr;
+                }
+
+                if( (write_addr - delay) >= 0)
+                {
+                    read_addr = write_addr - delay;
+                }
+
+                //write to ram
+                    MCP_23K256_RAM_write_byte(write_addr, mapd_value);
+
+                //read from ram
+                    MCP_23K256_RAM_read_byte(read_addr, &read_val);
+
+                //write value to dac
+                    MCP4901_DAC_write(read_val);
+
+                //increment write pointer
+                    write_addr++;
+
+                break;
+            case 9:
+                /* update ram, read new ram value for feedback */
+
+                break;
+
+            default:
+                /* do nothing */
+                break;
         }
-
-        if( (write_addr - delay) >= 0)
-        {
-            read_addr = write_addr - delay;
-        }
-
-    //write to ram
-        MCP_23K256_RAM_write_byte(write_addr, mapd_value);
-
-    //read from ram
-        MCP_23K256_RAM_read_byte(read_addr, &read_val);
-
-    //write value to dac
-        MCP4901_DAC_write(read_val);
-
-    //increment write pointer
-        write_addr++;
-
-    //11kHz sample rate
-        delay_us(90);
-
     }
-
 }
 
 void clock_setup(void)
@@ -177,14 +206,14 @@ void clock_setup(void)
     Timer interrupt for 11025Hz freq
     16,000,000 / 11025 = 1451.247
     https://eleccelerator.com/avr-timer-calculator/
-    
+
     if count = 1451
     then Freq = 11026.878015161958
 */
 void TIM2_setup( void )
 {
   TIM2_DeInit( );
-  TIM2_TimeBaseInit( TIM2_PRESCALER_1, 1451 );
+  TIM2_TimeBaseInit( TIM2_PRESCALER_1, 145 );
   TIM2_ITConfig( TIM2_IT_UPDATE, ENABLE );
   TIM2_Cmd( ENABLE );
   enableInterrupts( );
@@ -257,9 +286,12 @@ void ADC1_setup(void)
 }
 
 /*
+* spi device 1 DAC
+* spi device 2 RAM
 * I think sets up SPI at 1MHz
 * When the master is communicating with SPI slaves which need to be deselected between transmissions, the NSS pin must be configured as a GPIO.
 * i'm guessing NSS_SOFT is no cs pin...
+* just polling, or does this use interrupts?
 */
 void SPI_setup(void)
 {

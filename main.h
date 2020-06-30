@@ -61,4 +61,6 @@
 
 #define ADC_Multichannel_pins       ((GPIO_Pin_TypeDef)(ADC_LEFTCHANNEL_IN_pin | ADC_FEEDBACK_AMOUNT_pin | ADC_DELAY_LENGTH_pin | ADC_DRYWETMIX_pin ))
 
+#define NUM_Of_ADCPOT_SAMPLES       4
+
 #endif /* __MAIN_H__ */

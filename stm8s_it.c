@@ -41,13 +41,13 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 /* Public functions ----------------------------------------------------------*/
-//extern unsigned int interruptCount;
 
+/* drives state machine in the main loop using global variable */
+extern uint8_t state;
 void TIM2_UPD_IRQHandler( void )
 {
-    // increment count
-    // switch case in here?
-    
+    state++;
+    if ( 10 <= state ) state = 0;
     TIM2_ClearFlag(TIM2_FLAG_UPDATE);
 }
 

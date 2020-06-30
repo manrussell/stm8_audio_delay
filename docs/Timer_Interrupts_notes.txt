@@ -1,0 +1,59 @@
+Timer Interrupts notes
+======================
+*)
+    clocks are they running correctly?
+    HSI should be 16MHz, could check this
+    looks like crystal on the board say 0800mc2
+    --> is that 8MHz??
+    All this needs confirming...
+
+*)
+    timer interrupt event driven system
+    
+    interrupt every 10us?
+    i can always increase the sampe rate if required.
+    switch
+    
+    0   ADC of pots
+    1   
+    2   ADC of pots
+    3   
+    4   ADC of pots
+    5   
+    6   ADC of pots
+    7   
+    8   do average for ADC pots.
+    9   Sample Audio ADC, process, write to DAC.
+        update ram, read new ram value for feedback
+    
+    prescaler * 1 * counts/ F(master)
+    
+    largest prescaler == 32768.
+    32768/16,000,000    
+    =0.002048 s way too big
+    
+    16,000,000 / 11025 = 1451.24716553287981859410430839
+    
+    
+    How many counts? to make 9.07us
+    
+    https://eleccelerator.com/avr-timer-calculator/
+    
+    count = 1451
+    Freq = 11026.878015161958
+    ,,
+    but we don't want that, we want to divide that into smaller chunks to that we 
+    can have a state machine with maybe 8/9/10 steps
+    
+    ->
+    if we go for 10 steps, then new freq of 110250Hz == 145.1247
+    so lets go for that for now.
+    145 counts == 110344.8275862069 Hz == 0.0000090625 seconds
+    
+    
+*)
+    average ADC values.
+    moving average? 
+
+
+
