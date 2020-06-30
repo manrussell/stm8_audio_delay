@@ -41,6 +41,17 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 /* Public functions ----------------------------------------------------------*/
+//extern unsigned int interruptCount;
+
+void TIM2_UPD_IRQHandler( void )
+{
+    // increment count
+    // switch case in here?
+    
+    TIM2_ClearFlag(TIM2_FLAG_UPDATE);
+}
+
+
 
 #ifdef _COSMIC_
 /**

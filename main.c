@@ -56,7 +56,7 @@ void clock_setup(void);
 void GPIO_setup(void);
 void SPI_setup(void);
 void ADC1_setup(void);
-// void TIM2_setup(void);
+void TIM2_setup(void);
 void SPI_setup(void);
 
 //spi device 1 DAC
@@ -85,6 +85,7 @@ void main( void )
     SPI_setup();
     MCP_23K256_RAM_init();
     MCP4901_DAC_init();
+    TIM2_setup( );
 
   /* Infinite loop */
   while (1)
@@ -167,12 +168,30 @@ void clock_setup(void)
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_AWU, DISABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC, ENABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER1, DISABLE);
-  CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2, DISABLE);
+  CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2, ENABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER4, ENABLE);
 
 }
 
-void GPIO_setup(void)
+/*
+    Timer interrupt for 11025Hz freq
+    16,000,000 / 11025 = 1451.247
+    https://eleccelerator.com/avr-timer-calculator/
+    
+    if count = 1451
+    then Freq = 11026.878015161958
+*/
+void TIM2_setup( void )
+{
+  TIM2_DeInit( );
+  TIM2_TimeBaseInit( TIM2_PRESCALER_1, 1451 );
+  TIM2_ITConfig( TIM2_IT_UPDATE, ENABLE );
+  TIM2_Cmd( ENABLE );
+  enableInterrupts( );
+}
+
+
+void GPIO_setup( void )
 {
     //GPIO_Init(LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
 }
@@ -236,20 +255,6 @@ void ADC1_setup(void)
   ADC1_Cmd(ENABLE);
 
 }
-
-
-
-/*
-void TIM2_setup(void)
-{
-  TIM2_DeInit();
-  TIM2_TimeBaseInit(TIM2_PRESCALER_32, 1000);
-  TIM2_OC1Init(TIM2_OCMODE_PWM1, TIM2_OUTPUTSTATE_ENABLE, 1000, TIM2_OCPOLARITY_HIGH);
-  TIM2_Cmd(ENABLE);
-
-}
-*/
-
 
 /*
 * I think sets up SPI at 1MHz
