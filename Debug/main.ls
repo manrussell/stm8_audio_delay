@@ -233,26 +233,26 @@
  563  012b a601          	ld	a,#1
  565                     ; 238 }
  568  012d cc0000        	jp	_ADC1_Cmd
- 595                     ; 260 void SPI_setup(void)
- 595                     ; 261 {
+ 595                     ; 259 void SPI_setup(void)
+ 595                     ; 260 {
  596                     	switch	.text
  597  0130               _SPI_setup:
- 601                     ; 263   GPIO_Init(SPI_PORT, (GPIO_Pin_TypeDef)(SPI_CLK | SPI_MOSI | SPI_MISO), GPIO_MODE_OUT_PP_HIGH_FAST);
+ 601                     ; 261   GPIO_Init(SPI_PORT, (GPIO_Pin_TypeDef)(SPI_CLK | SPI_MOSI | SPI_MISO), GPIO_MODE_OUT_PP_HIGH_FAST);
  603  0130 4bf0          	push	#240
  604  0132 4be0          	push	#224
  605  0134 ae500a        	ldw	x,#20490
  606  0137 cd0000        	call	_GPIO_Init
  608  013a 85            	popw	x
- 609                     ; 265   SPI_DeInit();
+ 609                     ; 263   SPI_DeInit();
  611  013b cd0000        	call	_SPI_DeInit
- 613                     ; 267   SPI_Init(SPI_FIRSTBIT_MSB, \
- 613                     ; 268     SPI_BAUDRATEPRESCALER_16, \
- 613                     ; 269     SPI_MODE_MASTER, \
- 613                     ; 270     SPI_CLOCKPOLARITY_LOW, \
- 613                     ; 271     SPI_CLOCKPHASE_1EDGE, \
- 613                     ; 272     SPI_DATADIRECTION_2LINES_FULLDUPLEX, \
- 613                     ; 273     SPI_NSS_SOFT, \
- 613                     ; 274     0x0);
+ 613                     ; 265   SPI_Init(SPI_FIRSTBIT_MSB, \
+ 613                     ; 266     SPI_BAUDRATEPRESCALER_16, \
+ 613                     ; 267     SPI_MODE_MASTER, \
+ 613                     ; 268     SPI_CLOCKPOLARITY_LOW, \
+ 613                     ; 269     SPI_CLOCKPHASE_1EDGE, \
+ 613                     ; 270     SPI_DATADIRECTION_2LINES_FULLDUPLEX, \
+ 613                     ; 271     SPI_NSS_SOFT, \
+ 613                     ; 272     0x0);
  615  013e 4b00          	push	#0
  616  0140 4b02          	push	#2
  617  0142 4b00          	push	#0
@@ -262,9 +262,9 @@
  621  014a ae0018        	ldw	x,#24
  622  014d cd0000        	call	_SPI_Init
  624  0150 5b06          	addw	sp,#6
- 625                     ; 276   SPI_Cmd(ENABLE);
+ 625                     ; 274   SPI_Cmd(ENABLE);
  627  0152 a601          	ld	a,#1
- 629                     ; 277 }
+ 629                     ; 275 }
  632  0154 cc0000        	jp	_SPI_Cmd
  645                     	xdef	_main
  646                     	xdef	_ADC1_setup

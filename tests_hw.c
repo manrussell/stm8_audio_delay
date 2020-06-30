@@ -5,11 +5,6 @@
 * free to use
 *
 ********************************************************************/
-/*
-ERRRM why am i using a gpio, isn't there a cs pin that i can use
--> check spi init again
-*/
-
 #ifndef __TESTS_HW_C__
 #define __TESTS_HW_C__
 
@@ -20,8 +15,23 @@ ERRRM why am i using a gpio, isn't there a cs pin that i can use
 #include "mcp_23k256_spi_ram.h"
 #include "tests_hw.h"
 
+void TEST_run_all_tests( void )
+{
+    
+    /*
+    build up tests from smaller components/tests.
 
-/*
+    Give each test its own setup routine
+    clock_setup();
+    GPIO_setup();
+    ADC1_setup();
+    SPI_setup();
+    MCP_23K256_RAM_init();
+    MCP4901_DAC_init();
+*/
+
+
+    /*
     res = TEST_ram_test_001();
     if(res != 0)
     {
@@ -44,16 +54,8 @@ ERRRM why am i using a gpio, isn't there a cs pin that i can use
 */
 
     //TEST_rampfunc_in_ram_to_dac();
-    
-    
-/*
-    void MCP_23K256_read_status_register(uint8_t *data);
-    void MCP_23K256_write_status_register(uint8_t data);
-    void MCP_23K256_RAM_write_byte(uint16_t address, unsigned char value);
-    void MCP_23K256_RAM_read_byte(uint16_t address, unsigned char *value);
+}
 
- Simply writes to ram and reads from ram
-*/
 uint8_t TEST_ram_test_001( void )
 {
     uint8_t cnt = 0;
@@ -398,6 +400,25 @@ void TEST_adc_to_ram_to_dac_with_with_fback( void )
 
     }
 
+}
+
+/*
+    test clock speed by toggling a gpio
+    portD pin_4
+    uses a delau of 1 ms
+    should be good for a 10MHz toggle, using GPIO_MODE_OUT_PP_HIGH_FAST
+*/
+void TEST_clock_speed( void )
+{
+    GPIO_Init( LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST );
+    
+    while ( 1 )
+    {
+        delay_ms( 1 );
+        //void GPIO_WriteReverse(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef PortPins);
+        GPIO_WriteReverse(LED_port, LED_pin);
+    }
+    
 }
 
 #endif /* __TESTS_HW_C__ */

@@ -378,30 +378,54 @@
 1021  01e0 ae005a        	ldw	x,#90
 1022  01e3 cd0000        	call	_delay_us
 1025  01e6 2094          	jra	L543
-1038                     	xdef	_TEST_adc_to_ram_to_dac_with_with_fback
-1039                     	xdef	_TEST_adc_to_ram_to_dac_with_delay
-1040                     	xdef	_TEST_adc_to_ram_to_dac
-1041                     	xdef	_TEST_adc_to_dac
-1042                     	xdef	_TEST_rampfunc_in_ram_to_dac
-1043                     	xdef	_TEST_ram_test_001
-1044                     	xref	_MCP_23K256_RAM_read_byte
-1045                     	xref	_MCP_23K256_RAM_write_byte
-1046                     	xref	_MCP_23K256_RAM_write_status_register
-1047                     	xref	_MCP_23K256_RAM_read_status_register
-1048                     	xref	_MCP4901_DAC_write
-1049                     	xref	_delay_us
-1050                     	xref	_ADC1_ClearFlag
-1051                     	xref	_ADC1_GetFlagStatus
-1052                     	xref	_ADC1_GetBufferValue
-1053                     	xref	_ADC1_GetConversionValue
-1054                     	xref	_ADC1_StartConversion
-1055                     	xref	_ADC1_ScanModeCmd
-1056                     .const:	section	.text
-1057  0000               L702:
-1058  0000 3e800000      	dc.w	16000,0
-1059                     	xref.b	c_lreg
-1060                     	xref.b	c_x
-1080                     	xref	c_ftol
-1081                     	xref	c_fmul
-1082                     	xref	c_uitof
-1083                     	end
+1051                     ; 409 void TEST_clock_speed( void )
+1051                     ; 410 {
+1052                     	switch	.text
+1053  01e8               _TEST_clock_speed:
+1057                     ; 411     GPIO_Init( LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST );
+1059  01e8 4bf0          	push	#240
+1060  01ea 4b10          	push	#16
+1061  01ec ae500f        	ldw	x,#20495
+1062  01ef cd0000        	call	_GPIO_Init
+1064  01f2 85            	popw	x
+1065  01f3               L763:
+1066                     ; 415         delay_ms( 1 );
+1068  01f3 ae0001        	ldw	x,#1
+1069  01f6 cd0000        	call	_delay_ms
+1071                     ; 417         GPIO_WriteReverse(LED_port, LED_pin);
+1073  01f9 4b10          	push	#16
+1074  01fb ae500f        	ldw	x,#20495
+1075  01fe cd0000        	call	_GPIO_WriteReverse
+1077  0201 84            	pop	a
+1079  0202 20ef          	jra	L763
+1092                     	xdef	_TEST_clock_speed
+1093                     	xdef	_TEST_adc_to_ram_to_dac_with_with_fback
+1094                     	xdef	_TEST_adc_to_ram_to_dac_with_delay
+1095                     	xdef	_TEST_adc_to_ram_to_dac
+1096                     	xdef	_TEST_adc_to_dac
+1097                     	xdef	_TEST_rampfunc_in_ram_to_dac
+1098                     	xdef	_TEST_ram_test_001
+1099                     	xref	_MCP_23K256_RAM_read_byte
+1100                     	xref	_MCP_23K256_RAM_write_byte
+1101                     	xref	_MCP_23K256_RAM_write_status_register
+1102                     	xref	_MCP_23K256_RAM_read_status_register
+1103                     	xref	_MCP4901_DAC_write
+1104                     	xref	_delay_ms
+1105                     	xref	_delay_us
+1106                     	xref	_GPIO_WriteReverse
+1107                     	xref	_GPIO_Init
+1108                     	xref	_ADC1_ClearFlag
+1109                     	xref	_ADC1_GetFlagStatus
+1110                     	xref	_ADC1_GetBufferValue
+1111                     	xref	_ADC1_GetConversionValue
+1112                     	xref	_ADC1_StartConversion
+1113                     	xref	_ADC1_ScanModeCmd
+1114                     .const:	section	.text
+1115  0000               L702:
+1116  0000 3e800000      	dc.w	16000,0
+1117                     	xref.b	c_lreg
+1118                     	xref.b	c_x
+1138                     	xref	c_ftol
+1139                     	xref	c_fmul
+1140                     	xref	c_uitof
+1141                     	end

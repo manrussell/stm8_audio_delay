@@ -209,7 +209,7 @@ void ADC1_setup(void)
   // ADC gpio's for scan mode
   GPIO_DeInit(ADC_port);
   GPIO_Init(ADC_port, ADC_Multichannel_pins, GPIO_MODE_IN_FL_NO_IT);
-  
+
   ADC1_DeInit();
 
   ADC1_Init(ADC1_CONVERSIONMODE_SINGLE, \
@@ -259,7 +259,7 @@ void TIM2_setup(void)
 void SPI_setup(void)
 {
   GPIO_Init(SPI_PORT, (GPIO_Pin_TypeDef)(SPI_CLK | SPI_MOSI | SPI_MISO), GPIO_MODE_OUT_PP_HIGH_FAST);
-  
+
   SPI_DeInit();
 
   SPI_Init(SPI_FIRSTBIT_MSB, \
