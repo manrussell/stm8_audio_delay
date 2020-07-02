@@ -63,7 +63,7 @@ void main( void )
     uint16_t adc_leftChannel = 0;
     uint16_t adc_feedback    = 0;
     uint16_t adc_delay       = 0;
-    uint8_t  mapd_value      = 0;   // mapped adc valu
+    uint16_t mapd_value      = 0;   // mapped adc valu
     uint8_t  read_val        = 0;   // read val from ram
     uint16_t write_addr      = 0;   // write addr in ram
     uint16_t read_addr       = 0;   // read addr in val
@@ -111,16 +111,15 @@ void main( void )
                 break;
             case 4:
             case 5:
-            case 6:
                 /* do nothing */
                 break;
-            case 7:
+            case 6:
                 /* do average of ADC pots values */
                 // how long does this take?
                 // this seems to break, is the maths? do i need a bigger type, or to cast?
                 //delay = ( delay_length_samples[0] + delay_length_samples[1] + delay_length_samples[2] + delay_length_samples[3] ) / NUM_Of_ADCPOT_SAMPLES;
                 break;
-            case 8:
+            case 7:
                 /* Sample Audio ADC, process, write to DAC */
                 //sample audio input
                 ADC1_ScanModeCmd( ENABLE );
@@ -134,11 +133,24 @@ void main( void )
                 // input range 0-1024 out range 0-255 therefore
                 // slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
                 // function simplfys down to
-                mapd_value = (adc_leftChannel >> 2);
+                mapd_value = ( adc_leftChannel >> 2 );
 
-                //with feedback 50% wet
+                /* mix adc input with feedback loop */
+                /* with feedback 50% wet */
                 mapd_value = mapd_value/2 +  read_val/2;
+                
+                /* DAC has 8 bit output, cap value at 0xff */
+                if ( 0xff < mapd_value )
+                {
+                    mapd_value = 0xff;
+                }
+                
+                // write value to dac
+                MCP4901_DAC_write( mapd_value ); 
 
+                break;
+            case 8:
+                /* update ram, read new ram value for feedback */
                 // sort out read addresses
                 if( (write_addr - delay) < 0)
                 {
@@ -152,21 +164,21 @@ void main( void )
                 }
 
                 //write to ram
-                    MCP_23K256_RAM_write_byte(write_addr, mapd_value);
-
-                //read from ram
-                    MCP_23K256_RAM_read_byte(read_addr, &read_val);
-
-                //write value to dac
-                    MCP4901_DAC_write(read_val);
-
-                //increment write pointer
-                    write_addr++;
+                MCP_23K256_RAM_write_byte( write_addr, mapd_value );
 
                 break;
             case 9:
-                /* update ram, read new ram value for feedback */
+                //read from ram
+                MCP_23K256_RAM_read_byte( read_addr, &read_val );
 
+                //increment write pointer
+                write_addr++;
+                
+                if ( write_addr > delay )
+                {
+                    //reset write pointer
+                    write_addr = 0;
+                }
                 break;
 
             default:
@@ -209,6 +221,8 @@ void clock_setup( void )
 
     if count = 1451
     then Freq = 11026.878015161958
+    
+    divide that by 10 to get a 10 state, state-machine
 */
 void TIM2_setup( void )
 {
