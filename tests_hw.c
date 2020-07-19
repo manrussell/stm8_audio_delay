@@ -15,6 +15,13 @@
 #include "mcp_23k256_spi_ram.h"
 #include "tests_hw.h"
 
+#define NEXT_TEST_BUTTON_PORT   GPIOC
+#define NEXT_TEST_BUTTON_PIN    GPIO_PIN_1
+#define BUTTON_PRESSED ( 0 == GPIO_ReadInputPin( NEXT_TEST_BUTTON_PORT, NEXT_TEST_BUTTON_PIN ) )
+
+static void setupNextTestButton( void );
+static uint8_t moveToNextTest( void );
+
 void TEST_run_all_tests( void )
 {
     
@@ -419,6 +426,35 @@ void TEST_clock_speed( void )
         GPIO_WriteReverse(LED_port, LED_pin);
     }
     
+}
+
+/*
+    For testing setup this pin to increment the function under test
+    Input pull-up, no external interrupt
+*/
+static void setupNextTestButton( void )
+{
+    GPIO_Init(NEXT_TEST_BUTTON_PORT, NEXT_TEST_BUTTON_PIN, GPIO_MODE_IN_PU_NO_IT);
+}
+
+/* if pin pulled low then return true, and increment tpo next test. */
+
+static uint8_t moveToNextTest( void )
+{
+    if ( BUTTON_PRESSED )
+    {
+        // debounce in sw
+        // wait 50ms see if button still pressed, if it is then we take that as a positive reading, shonky but what the hey.
+        
+        delay_ms( 50 );
+        
+        if ( BUTTON_PRESSED )
+        {
+            return 1;
+        }
+    }
+    
+    return 0;
 }
 
 #endif /* __TESTS_HW_C__ */
