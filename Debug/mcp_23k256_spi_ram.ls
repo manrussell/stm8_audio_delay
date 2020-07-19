@@ -278,17 +278,44 @@
  662                     ; 166 }
  665  016e 5b03          	addw	sp,#3
  666  0170 81            	ret	
- 679                     	xdef	_MCP_23K256_RAM_read_byte
- 680                     	xdef	_MCP_23K256_RAM_write_byte
- 681                     	xdef	_MCP_23K256_RAM_write_status_register
- 682                     	xdef	_MCP_23K256_RAM_read_status_register
- 683                     	xdef	_MCP_23K256_RAM_init
- 684                     	xref	_delay_ms
- 685                     	xref	_delay_us
- 686                     	xref	_SPI_GetFlagStatus
- 687                     	xref	_SPI_ReceiveData
- 688                     	xref	_SPI_SendData
- 689                     	xref	_GPIO_WriteLow
- 690                     	xref	_GPIO_WriteHigh
- 691                     	xref	_GPIO_Init
- 710                     	end
+ 711                     ; 175 void MCP_23K256_RAM_set_all( unsigned char value )
+ 711                     ; 176 {
+ 712                     	switch	.text
+ 713  0171               _MCP_23K256_RAM_set_all:
+ 715  0171 88            	push	a
+ 716  0172 89            	pushw	x
+ 717       00000002      OFST:	set	2
+ 720                     ; 179     for ( addr = 0 ;addr < SRAM_SIZE; addr++ )
+ 722  0173 5f            	clrw	x
+ 723  0174 1f01          	ldw	(OFST-1,sp),x
+ 725  0176               L543:
+ 726                     ; 181         MCP_23K256_RAM_write_byte( addr, value );
+ 728  0176 7b03          	ld	a,(OFST+1,sp)
+ 729  0178 88            	push	a
+ 730  0179 1e02          	ldw	x,(OFST+0,sp)
+ 731  017b cd00a1        	call	_MCP_23K256_RAM_write_byte
+ 733  017e 84            	pop	a
+ 734                     ; 179     for ( addr = 0 ;addr < SRAM_SIZE; addr++ )
+ 736  017f 1e01          	ldw	x,(OFST-1,sp)
+ 737  0181 5c            	incw	x
+ 738  0182 1f01          	ldw	(OFST-1,sp),x
+ 742  0184 a37d00        	cpw	x,#32000
+ 743  0187 25ed          	jrult	L543
+ 744                     ; 183 }
+ 747  0189 5b03          	addw	sp,#3
+ 748  018b 81            	ret	
+ 761                     	xdef	_MCP_23K256_RAM_set_all
+ 762                     	xdef	_MCP_23K256_RAM_read_byte
+ 763                     	xdef	_MCP_23K256_RAM_write_byte
+ 764                     	xdef	_MCP_23K256_RAM_write_status_register
+ 765                     	xdef	_MCP_23K256_RAM_read_status_register
+ 766                     	xdef	_MCP_23K256_RAM_init
+ 767                     	xref	_delay_ms
+ 768                     	xref	_delay_us
+ 769                     	xref	_SPI_GetFlagStatus
+ 770                     	xref	_SPI_ReceiveData
+ 771                     	xref	_SPI_SendData
+ 772                     	xref	_GPIO_WriteLow
+ 773                     	xref	_GPIO_WriteHigh
+ 774                     	xref	_GPIO_Init
+ 793                     	end

@@ -42,13 +42,128 @@
 /* Private functions ---------------------------------------------------------*/
 /* Public functions ----------------------------------------------------------*/
 
+#include "main.h"
+#include "delay.h"
+#include "mcp4901_spi_dac.h"
+#include "mcp_23k256_spi_ram.h"
+#include "tests_hw.h"
+
 /* drives state machine in the main loop using global variable */
 extern uint8_t state;
+
+extern uint16_t adc_leftChannel;
+extern uint16_t adc_feedback   ;
+extern uint16_t adc_delay      ;
+extern uint16_t mapd_value     ;   // mapped adc valu
+extern uint8_t  read_val       ;   // read val from ram
+extern uint16_t write_addr     ;   // write addr in ram
+extern uint16_t read_addr      ;   // read addr in ram, must start from one.
+extern uint16_t delay          ;   // length of delay in samples
+
 void TIM2_UPD_IRQHandler( void )
 {
+    // use gpio to display time of each state
+    GPIO_WriteHigh(TEST_port, TEST_pin);
+    
+    TIM2_ClearFlag(TIM2_FLAG_UPDATE);
+    
+    switch( state )
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            /* Read ADC's of pots and store in array */
+            // multi channel ADC's
+            // how long does the scantake? meaaure this start/stop -> gpio-> oscilloscope
+            // will want to separate the knobs from signal input,
+            //
+            ADC1_ScanModeCmd( ENABLE );
+            ADC1_StartConversion( );
+            while( ADC1_GetFlagStatus( ADC1_FLAG_EOC ) == FALSE );
+            ADC1_ClearFlag( ADC1_FLAG_EOC );
+            //adc_leftChannel = ADC1_GetBufferValue( 0 ); //ADC_LEFTCHANNEL );
+            adc_delay  = ADC1_GetBufferValue( 1 ); //ADC_FEEDBACK_AMOUNT );
+            //adc_delay = ADC1_GetBufferValue( ADC_DELAY_LENGTH );
+
+            //ADC1_ClearFlag( ADC1_FLAG_EOC );
+
+            //set delay buffer length, longer == longer delay
+            delay = ( adc_delay << 2 );
+            //delay_length_samples[ state ] = ( adc_delay << 2 );
+            break;
+        case 4:
+        case 5:
+            /* do nothing */
+            break;
+        case 6:
+            /* do average of ADC pots values */
+            // how long does this take?
+            // this seems to break, is the maths? do i need a bigger type, or to cast?
+            //delay = ( delay_length_samples[0] + delay_length_samples[1] + delay_length_samples[2] + delay_length_samples[3] ) / NUM_Of_ADCPOT_SAMPLES;
+            break;
+        case 7:
+            if ( write_addr >= delay ) // ahhh what if read above?
+            {
+                //reset write pointer
+                write_addr = 0;
+            }
+            
+            if ( read_addr >= delay)
+            {
+                //reset read pointer
+                read_addr = 0;
+            }
+            
+            //read from ram
+            MCP_23K256_RAM_read_byte( read_addr, &read_val );            
+            break;
+        case 8:
+            /* Sample Audio ADC, process, write to DAC */
+            //sample audio input
+            ADC1_ScanModeCmd( ENABLE );
+            ADC1_StartConversion( );
+            while( ADC1_GetFlagStatus( ADC1_FLAG_EOC ) == FALSE );
+            ADC1_ClearFlag( ADC1_FLAG_EOC );
+            adc_leftChannel = ADC1_GetBufferValue( 0 ); //ADC_LEFTCHANNEL );
+
+            // map function 10bit to 8bit
+            // (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+            // input range 0-1024 out range 0-255 therefore
+            // slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
+            // function simplfys down to
+            mapd_value = ( adc_leftChannel >> 2 );
+
+            /* mix adc input with feedback loop */
+            /* with feedback 100% wet */
+            mapd_value = mapd_value + read_val;
+            
+            /* DAC has 8 bit output, cap value at 0xff */
+            if ( 0xff < mapd_value )
+            {
+                mapd_value = 0xff;
+            }
+            
+            // write value to dac
+            MCP4901_DAC_write( mapd_value ); 
+            break;
+        case 9:
+            //write to ram
+            MCP_23K256_RAM_write_byte( write_addr, mapd_value );
+            
+            //increment write pointer
+            write_addr++;
+            read_addr++;
+            break;
+        default:
+            /* do nothing */
+            break;
+    }
+
     state++;
     if ( 10 <= state ) state = 0;
-    TIM2_ClearFlag(TIM2_FLAG_UPDATE);
+    
+    GPIO_WriteLow(TEST_port, TEST_pin);
 }
 
 

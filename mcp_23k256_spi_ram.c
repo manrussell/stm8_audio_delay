@@ -165,4 +165,21 @@ while(!SPI_GetFlagStatus(SPI_FLAG_RXNE));
     GPIO_WriteHigh(RAM_CS_port, RAM_CS_pin);
 }
 
+/* like a memset for the ram, i think it init's to 0xff 
+there maybe a better way if you check the datasheet, but i'm not doing that 
+right now...
+value         -> the value to fill RAM with
+start_address -> this ensures that what ever address the read/write pointer was 
+                 at before, it is  ... hmm this isn't neccessary...
+*/
+void MCP_23K256_RAM_set_all( unsigned char value )
+{
+    uint16_t addr;
+    
+    for ( addr = 0 ;addr < SRAM_SIZE; addr++ )
+    {
+        MCP_23K256_RAM_write_byte( addr, value );
+    }
+}
+
 #endif /* _MCP_23K256_SPI_RAM_C_ */

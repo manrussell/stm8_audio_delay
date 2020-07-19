@@ -57,18 +57,22 @@ void TIM2_setup( void );
 
 /* Private functions ---------------------------------------------------------*/
 uint8_t state = 0; /* updated by Tim2 timer interrupt function */
+uint8_t state_has_been_run = 1;   // the timer interupts inc the state, but we only want the state running once per cycle.
 
-void main( void )
-{
     uint16_t adc_leftChannel = 0;
     uint16_t adc_feedback    = 0;
     uint16_t adc_delay       = 0;
     uint16_t mapd_value      = 0;   // mapped adc valu
     uint8_t  read_val        = 0;   // read val from ram
     uint16_t write_addr      = 0;   // write addr in ram
-    uint16_t read_addr       = 0;   // read addr in val
+    uint16_t read_addr       = 1;   // read addr in ram, must start from one.
     uint16_t delay           = 0;   // length of delay in samples
+    
+    
+void main( void )
+{
     uint8_t  res             = 0;
+    uint16_t tally           = 0;   // used to check state machine.
 
     uint16_t delay_length_samples[NUM_Of_ADCPOT_SAMPLES] = {0}; // 4 samples of the pot are calculated
 
@@ -77,115 +81,15 @@ void main( void )
     ADC1_setup( );
     SPI_setup( );
     MCP_23K256_RAM_init( );
+    MCP_23K256_RAM_set_all( 0 );
     MCP4901_DAC_init( );
-    TIM2_setup( );
+    TIM2_setup( ); // enables timer interrupts...
 
   /* Infinite loop */
   while (1)
   {
-        switch( state )
-        {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-                /* Read ADC's of pots and store in array */
-                // multi channel ADC's
-                // how long does the scantake? meaaure this start/stop -> gpio-> oscilloscope
-                // will want to separate the knobs from signal input,
-                //
-                ADC1_ScanModeCmd( ENABLE );
-                ADC1_StartConversion( );
-                while( ADC1_GetFlagStatus( ADC1_FLAG_EOC ) == FALSE );
-                ADC1_ClearFlag( ADC1_FLAG_EOC );
-                //adc_leftChannel = ADC1_GetBufferValue( 0 ); //ADC_LEFTCHANNEL );
-                adc_delay  = ADC1_GetBufferValue( 1 ); //ADC_FEEDBACK_AMOUNT );
-                //adc_delay = ADC1_GetBufferValue( ADC_DELAY_LENGTH );
 
-                //ADC1_ClearFlag( ADC1_FLAG_EOC );
-
-                //set delay buffer length, longer == longer delay
-                delay = ( adc_delay << 2 );
-                delay_length_samples[ state ] = ( adc_delay << 2 );
-
-                break;
-            case 4:
-            case 5:
-                /* do nothing */
-                break;
-            case 6:
-                /* do average of ADC pots values */
-                // how long does this take?
-                // this seems to break, is the maths? do i need a bigger type, or to cast?
-                //delay = ( delay_length_samples[0] + delay_length_samples[1] + delay_length_samples[2] + delay_length_samples[3] ) / NUM_Of_ADCPOT_SAMPLES;
-                break;
-            case 7:
-                /* Sample Audio ADC, process, write to DAC */
-                //sample audio input
-                ADC1_ScanModeCmd( ENABLE );
-                ADC1_StartConversion( );
-                while( ADC1_GetFlagStatus( ADC1_FLAG_EOC ) == FALSE );
-                ADC1_ClearFlag( ADC1_FLAG_EOC );
-                adc_leftChannel = ADC1_GetBufferValue( 0 ); //ADC_LEFTCHANNEL );
-
-                // map function 10bit to 8bit
-                // (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-                // input range 0-1024 out range 0-255 therefore
-                // slope = (255 - 0) / (1024 - 0); == 0.25 note float!!
-                // function simplfys down to
-                mapd_value = ( adc_leftChannel >> 2 );
-
-                /* mix adc input with feedback loop */
-                /* with feedback 50% wet */
-                mapd_value = mapd_value/2 +  read_val/2;
-                
-                /* DAC has 8 bit output, cap value at 0xff */
-                if ( 0xff < mapd_value )
-                {
-                    mapd_value = 0xff;
-                }
-                
-                // write value to dac
-                MCP4901_DAC_write( mapd_value ); 
-
-                break;
-            case 8:
-                /* update ram, read new ram value for feedback */
-                // sort out read addresses
-                if( (write_addr - delay) < 0)
-                {
-                    //start up situation
-                    read_addr = SRAM_SIZE - delay + write_addr;
-                }
-
-                if( (write_addr - delay) >= 0)
-                {
-                    read_addr = write_addr - delay;
-                }
-
-                //write to ram
-                MCP_23K256_RAM_write_byte( write_addr, mapd_value );
-
-                break;
-            case 9:
-                //read from ram
-                MCP_23K256_RAM_read_byte( read_addr, &read_val );
-
-                //increment write pointer
-                write_addr++;
-                
-                if ( write_addr > delay )
-                {
-                    //reset write pointer
-                    write_addr = 0;
-                }
-                break;
-
-            default:
-                /* do nothing */
-                break;
-        }
-    }
+  }
 }
 
 void clock_setup( void )
@@ -227,7 +131,7 @@ void clock_setup( void )
 void TIM2_setup( void )
 {
   TIM2_DeInit( );
-  TIM2_TimeBaseInit( TIM2_PRESCALER_1, 145 );
+  TIM2_TimeBaseInit( TIM2_PRESCALER_1, 1451 );
   TIM2_ITConfig( TIM2_IT_UPDATE, ENABLE );
   TIM2_Cmd( ENABLE );
   enableInterrupts( );
@@ -237,6 +141,7 @@ void TIM2_setup( void )
 void GPIO_setup( void )
 {
     //GPIO_Init(LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
+    GPIO_Init(TEST_port, TEST_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
 }
 
 /*

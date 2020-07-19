@@ -25,8 +25,12 @@
 #include "stm8s.h"
 
 // is this used anymore?
-#define LED_pin                     GPIO_PIN_4 
 #define LED_port                    GPIOD
+#define LED_pin                     GPIO_PIN_4
+
+// test pin
+#define TEST_port                   GPIOC
+#define TEST_pin                    GPIO_PIN_3
 
 //SPI uC
 #define SPI_PORT                    GPIOC
@@ -35,12 +39,12 @@
 #define SPI_MISO                    GPIO_PIN_7
 
 //SPI DAC
-#define DAC_CS_pin                  GPIO_PIN_4
 #define DAC_CS_port                 GPIOC
+#define DAC_CS_pin                  GPIO_PIN_4
 
 //SPI RAM
-#define RAM_CS_pin                  GPIO_PIN_1
 #define RAM_CS_port                 GPIOA
+#define RAM_CS_pin                  GPIO_PIN_1
 
 //uC ADC
 #define ADC_port                    GPIOB

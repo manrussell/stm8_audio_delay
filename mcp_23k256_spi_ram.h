@@ -23,5 +23,6 @@ void MCP_23K256_RAM_read_status_register( uint8_t *data );
 void MCP_23K256_RAM_write_status_register( uint8_t data );
 void MCP_23K256_RAM_write_byte( uint16_t address, unsigned char value );
 void MCP_23K256_RAM_read_byte( uint16_t address, unsigned char *value );
+void MCP_23K256_RAM_set_all( unsigned char value );
 
 #endif /* _MCP_23K256_SPI_RAM_H_ */
