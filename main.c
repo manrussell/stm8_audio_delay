@@ -41,19 +41,15 @@
 #include "delay.h"
 #include "mcp4901_spi_dac.h"
 #include "mcp_23k256_spi_ram.h"
-#include "tests_hw.h"
+
+#define RUN_TESTS   1
+#if defined RUN_TESTS
+#   include "tests_hw.h"
+#endif /* RUN_TESTS */
 
 /* Private defines -----------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
-void setup( void );
-void clock_setup( void );
-void GPIO_setup( void );
-void SPI_setup( void );
-void ADC1_setup( void );
-void TIM2_setup( void );
-
-//tests, used while setting up hardware.
 
 /* Private functions ---------------------------------------------------------*/
 uint8_t state = 0; /* updated by Tim2 timer interrupt function */
@@ -68,7 +64,7 @@ uint8_t state_has_been_run = 1;   // the timer interupts inc the state, but we o
     uint16_t read_addr       = 1;   // read addr in ram, must start from one.
     uint16_t delay           = 0;   // length of delay in samples
     
-    
+
 void main( void )
 {
     uint8_t  res             = 0;
@@ -76,14 +72,18 @@ void main( void )
 
     uint16_t delay_length_samples[NUM_Of_ADCPOT_SAMPLES] = {0}; // 4 samples of the pot are calculated
 
-    clock_setup( );
-    GPIO_setup( );
-    ADC1_setup( );
+#if RUN_TESTS
+    TEST_run_all_tests( );
+#endif /* RUN_TESTS */
+
+    CLOCK_setup( );
+    GPIO_setupDebugPin( );
+    ADC1_setupMultiChannel( );
     SPI_setup( );
     MCP_23K256_RAM_init( );
     MCP_23K256_RAM_set_all( 0 );
     MCP4901_DAC_init( );
-    TIM2_setup( ); // enables timer interrupts...
+    TIM2_setupTimerInterrupt( );
 
   /* Infinite loop */
   while (1)
@@ -92,7 +92,7 @@ void main( void )
   }
 }
 
-void clock_setup( void )
+void CLOCK_setup( void )
 {
   CLK_DeInit( );
 
@@ -128,7 +128,7 @@ void clock_setup( void )
     
     divide that by 10 to get a 10 state, state-machine
 */
-void TIM2_setup( void )
+void TIM2_setupTimerInterrupt( void )
 {
   TIM2_DeInit( );
   TIM2_TimeBaseInit( TIM2_PRESCALER_1, 1451 );
@@ -137,8 +137,8 @@ void TIM2_setup( void )
   enableInterrupts( );
 }
 
-
-void GPIO_setup( void )
+/* Used to time functions using a logic ananylser. */
+void GPIO_setupDebugPin( void )
 {
     //GPIO_Init(LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
     GPIO_Init(TEST_port, TEST_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
@@ -170,7 +170,7 @@ outputs, leftchannel and delay.
 continuous mode seems to take the buffer 0 one and ignore buffer 1 and pass that to leftchannel and delay
 
 */
-void ADC1_setup( void )
+void ADC1_setupMultiChannel( void )
 {
   // ADC, we have to set out ADC pin as a floating GPIO with no interrupt capability:
   // ADC gpio's for scan mode
@@ -202,6 +202,11 @@ void ADC1_setup( void )
   ADC1_DataBufferCmd( ENABLE );
   ADC1_Cmd( ENABLE );
 
+}
+
+void ADC1_setupSingleChannel( void )
+{
+    
 }
 
 /*

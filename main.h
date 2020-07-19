@@ -29,8 +29,14 @@
 #define LED_pin                     GPIO_PIN_4
 
 // test pin
+// rename timing debug pin?
+// init by GPIO_setupDebugPin( );
 #define TEST_port                   GPIOC
 #define TEST_pin                    GPIO_PIN_3
+
+//below untested ...
+#define NEXT_TEST_BUTTON_PORT       GPIOC
+#define NEXT_TEST_BUTTON_PIN        GPIO_PIN_1
 
 //SPI uC
 #define SPI_PORT                    GPIOC
@@ -66,5 +72,25 @@
 #define ADC_Multichannel_pins       ((GPIO_Pin_TypeDef)(ADC_LEFTCHANNEL_IN_pin | ADC_FEEDBACK_AMOUNT_pin | ADC_DELAY_LENGTH_pin | ADC_DRYWETMIX_pin ))
 
 #define NUM_Of_ADCPOT_SAMPLES       4
+
+/* Set up clock PLL's nad peripherals. */
+void CLOCK_setup( void );
+
+/* Used to display timing events info to a logic analyser*/
+void GPIO_setupDebugPin( void );
+void SPI_setup( void );
+void ADC1_setupMultiChannel( void );
+void ADC1_setupSingleChannel( void );
+void TIM2_setupTimerInterrupt( void );
+
+/* make this an inline function ... or macro? */
+@inline void ADC_readMultiChannelInputs( void )
+{
+    ADC1_ScanModeCmd( ENABLE );
+    ADC1_StartConversion( );
+    while( ADC1_GetFlagStatus( ADC1_FLAG_EOC ) == FALSE );
+    ADC1_ClearFlag( ADC1_FLAG_EOC );
+}   
+
 
 #endif /* __MAIN_H__ */

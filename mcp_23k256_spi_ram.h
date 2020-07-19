@@ -11,6 +11,7 @@
 #define WRSR        0x01            // Write Status register
 
 // STATUS REGISTER
+#define NUM_OF_SPI_MODES    3
 #define BYTE_MODE   0x00
 #define PAGE_MODE   0x80
 #define SEQ_MODE    0x40
