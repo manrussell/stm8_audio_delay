@@ -138,6 +138,7 @@ void TIM2_setupTimerInterrupt( void )
 }
 
 /* Used to time functions using a logic ananylser. */
+// GPIO_debugPinSetup( )
 void GPIO_setupDebugPin( void )
 {
     //GPIO_Init(LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST);

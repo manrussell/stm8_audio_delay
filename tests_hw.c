@@ -119,7 +119,7 @@ void TEST_ram_test_001( void )
         Ram initial state should be 0xff so write to 0x0
         Could add GPIO toggle to time test!
     */
-    wdata = 0x0;
+    wdata = 0x55;
     addr  = 0;
 
     for( addr = 0; addr < SRAM_SIZE; addr++ ) //is it <= or <  --Test!
@@ -176,7 +176,7 @@ void TEST_rampfunc_in_ram_to_dac( void )
 }
 
 /* Simply sends adc value to the dac */
-void TEST_adc_to_dac( uint8_t *x )
+void TEST_adc_to_dac( void )
 {
     uint8_t  testIncomplete = 1;
     uint16_t adcVal = 0;
