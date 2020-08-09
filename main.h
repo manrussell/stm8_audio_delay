@@ -69,7 +69,7 @@
 #define ADC_ELSE_pin                GPIO_PIN_4 // not used so far
 #define ADC_ELSE                    4
 
-#define ADC_Multichannel_pins       ((GPIO_Pin_TypeDef)(ADC_LEFTCHANNEL_IN_pin | ADC_FEEDBACK_AMOUNT_pin | ADC_DELAY_LENGTH_pin | ADC_DRYWETMIX_pin ))
+#define ADC_Multichannel_pins       ((GPIO_Pin_TypeDef)( ADC_LEFTCHANNEL_IN_pin | ADC_FEEDBACK_AMOUNT_pin | ADC_DELAY_LENGTH_pin | ADC_DRYWETMIX_pin ))
 
 #define NUM_Of_ADCPOT_SAMPLES       4
 

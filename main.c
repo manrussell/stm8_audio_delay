@@ -70,23 +70,23 @@ void main( void )
     uint8_t  res             = 0;
     uint16_t tally           = 0;   // used to check state machine.
 
-    uint16_t delay_length_samples[NUM_Of_ADCPOT_SAMPLES] = {0}; // 4 samples of the pot are calculated
+    uint16_t delay_length_samples[ NUM_Of_ADCPOT_SAMPLES ] = { 0 }; // 4 samples of the pot are calculated
 
 #if RUN_TESTS
     TEST_run_all_tests( );
 #endif /* RUN_TESTS */
 
-    CLOCK_setup( );
-    GPIO_setupDebugPin( );
+    CLOCK_setup( ); /* setup 16MHz CPU frq and peripheral enable clock */
+    GPIO_setupDebugPin( ); /* what is this ?*/
     ADC1_setupMultiChannel( );
-    SPI_setup( );
+    SPI_setup( ); /* for RAM and DAC */
     MCP_23K256_RAM_init( );
     MCP_23K256_RAM_set_all( 0 );
     MCP4901_DAC_init( );
-    TIM2_setupTimerInterrupt( );
+    TIM2_setupTimerInterrupt( ); /* for event driven machine. */
 
   /* Infinite loop */
-  while (1)
+  while( 1 )
   {
 
   }
@@ -141,8 +141,8 @@ void TIM2_setupTimerInterrupt( void )
 // GPIO_debugPinSetup( )
 void GPIO_setupDebugPin( void )
 {
-    //GPIO_Init(LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
-    GPIO_Init(TEST_port, TEST_pin, GPIO_MODE_OUT_PP_HIGH_FAST);
+    //GPIO_Init( LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST );
+    GPIO_Init( TEST_port, TEST_pin, GPIO_MODE_OUT_PP_HIGH_FAST );
 }
 
 /*
@@ -251,8 +251,9 @@ void assert_failed( u8* file, u32 line )
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 
   /* Infinite loop */
-  while (1)
+  while( 1 )
   {
+      
   }
 }
 #endif

@@ -9,3 +9,101 @@ now is a good time to fix up the tests, if they work, then HW set up should be o
 
 -> How do i want the tests to run?
   -> reflash for each test? hmmmm :( might have to though for manual tests... checking with Oscilloscope
+    -> button and led to display test success and button to progress to next test??
+    
+08/06/2020
+==========
+
+Review...
+
+   
+ToDo.
+*)
+Do the tests work?
+-> ( Does the button work )
+How do they work?
+    1 test upon fail get stuck in while loop
+    some tests require human interaction to exit
+    -> this requires button press,
+    --> exch functio set a variable true, then interrupt setd it false
+    eg while( testIncomplete ) ... until extirq
+    --> this is ... hmmmm 
+*)
+disable interrupts between tests
+
+*)
+What gpio's do i need / want?
+re-do requirements.
+
+
+    // is this used anymore?
+    #define LED_port                    GPIOD
+    #define LED_pin                     GPIO_PIN_4
+
+    // test pin
+    // rename timing debug pin?
+    // init by GPIO_setupDebugPin( );
+    #define TEST_port                   GPIOC
+    #define TEST_pin                    GPIO_PIN_3
+
+review out come.
+    .led is not used
+    .rename TEST_port/pin to timing_debugPin
+    .which is the extInt pin? -> will this cause conflict
+    .ADC's ?
+
+**)
+Some kinda big DEINIT( ) between tests ,, or
+
+Could i do a software reset?
+    on HW reset clear a variable
+    on SW reset keep a variable,
+    if soft reset skip tests?
+    What register says if soft reset?
+    --> maybe hold button to enter tests?
+
+*)    
+done RAM and DAC
+    re-define the functions names to remove specific component names in test functions
+
+*)
+SPI DAC weird trace no data sent.
+
+*)
+check freq of TIM2_UPD_IRQHandler( )
+this should be 11025Hz * 10 , for state machine
+
+*)
+Documentation / website
+
+
+*)
+what about that delay_us( 1 ) in spi for CS pin?
+
+*)
+GPIO_setupDebugPin( );
+    /* Used to time functions using a logic ananylser. */
+    void GPIO_setupDebugPin( void )
+    {
+        //GPIO_Init( LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST );
+        GPIO_Init( TEST_port, TEST_pin, GPIO_MODE_OUT_PP_HIGH_FAST );
+    }
+
+ whats going on? this is sometmes uesd, do i even need it now? -> test buttton extInt 
+
+*)
+Some code is snake case some code is camel case, use camel case
+
+*)
+mcli ...
+
+
+
+
+
+
+
+
+
+
+

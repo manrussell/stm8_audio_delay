@@ -63,9 +63,9 @@ extern uint16_t delay          ;   // length of delay in samples
 void TIM2_UPD_IRQHandler( void )
 {
     // use gpio to display time of each state
-    GPIO_WriteHigh(TEST_port, TEST_pin);
+    GPIO_WriteHigh( TEST_port, TEST_pin );
     
-    TIM2_ClearFlag(TIM2_FLAG_UPDATE);
+    TIM2_ClearFlag( TIM2_FLAG_UPDATE );
     
     switch( state )
     {
@@ -166,7 +166,11 @@ void TIM2_UPD_IRQHandler( void )
     GPIO_WriteLow(TEST_port, TEST_pin);
 }
 
-
+extern uint8_t  testIncomplete;
+void EXTI1_IRQHandler( void )
+{
+    testIncomplete = 0;
+}
 
 #ifdef _COSMIC_
 /**

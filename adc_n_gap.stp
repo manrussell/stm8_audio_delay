@@ -219,7 +219,7 @@ String.6.0=2018,5,10,16,18,35
 [Root.Source Files]
 ElemType=Folder
 PathName=Source Files
-Child=Root.Source Files.en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_spi.c
+Child=Root.Source Files.en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_exti.c
 Next=Root.Include Files
 Config.0=Root.Source Files.Config.0
 Config.1=Root.Source Files.Config.1
@@ -290,6 +290,36 @@ String.4.0=
 String.5.0=
 String.6.0=2018,5,10,16,18,35
 
+[Root.Source Files.en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_exti.c]
+ElemType=File
+PathName=en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_exti.c
+Next=Root.Source Files.tests_hw.c
+
+[Root.Source Files.tests_hw.c]
+ElemType=File
+PathName=tests_hw.c
+Next=Root.Source Files.mcp4901_spi_dac.c
+
+[Root.Source Files.mcp4901_spi_dac.c]
+ElemType=File
+PathName=mcp4901_spi_dac.c
+Next=Root.Source Files.mcp_23k256_spi_ram.c
+
+[Root.Source Files.mcp_23k256_spi_ram.c]
+ElemType=File
+PathName=mcp_23k256_spi_ram.c
+Next=Root.Source Files.delay.c
+
+[Root.Source Files.delay.c]
+ElemType=File
+PathName=delay.c
+Next=Root.Source Files.stm8s_it.c
+
+[Root.Source Files.stm8s_it.c]
+ElemType=File
+PathName=stm8s_it.c
+Next=Root.Source Files.en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_spi.c
+
 [Root.Source Files.en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_spi.c]
 ElemType=File
 PathName=en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_spi.c
@@ -342,7 +372,7 @@ PathName=stm8_interrupt_vector.c
 [Root.Include Files]
 ElemType=Folder
 PathName=Include Files
-Child=Root.Include Files.en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_spi.h
+Child=Root.Include Files.en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_exti.h
 Config.0=Root.Include Files.Config.0
 Config.1=Root.Include Files.Config.1
 
@@ -411,6 +441,36 @@ String.3.0=
 String.4.0=
 String.5.0=
 String.6.0=2018,5,10,16,18,35
+
+[Root.Include Files.en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_exti.h]
+ElemType=File
+PathName=en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_exti.h
+Next=Root.Include Files.tests_hw.h
+
+[Root.Include Files.tests_hw.h]
+ElemType=File
+PathName=tests_hw.h
+Next=Root.Include Files.mcp4901_spi_dac.h
+
+[Root.Include Files.mcp4901_spi_dac.h]
+ElemType=File
+PathName=mcp4901_spi_dac.h
+Next=Root.Include Files.mcp_23k256_spi_ram.h
+
+[Root.Include Files.mcp_23k256_spi_ram.h]
+ElemType=File
+PathName=mcp_23k256_spi_ram.h
+Next=Root.Include Files.main.h
+
+[Root.Include Files.main.h]
+ElemType=File
+PathName=main.h
+Next=Root.Include Files.delay.h
+
+[Root.Include Files.delay.h]
+ElemType=File
+PathName=delay.h
+Next=Root.Include Files.en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_spi.h
 
 [Root.Include Files.en.stsw-stm8069_periph_lib\stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_spi.h]
 ElemType=File
