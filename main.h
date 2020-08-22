@@ -28,15 +28,19 @@
 #define LED_port                    GPIOD
 #define LED_pin                     GPIO_PIN_4
 
-// test pin
-// rename timing debug pin?
-// init by GPIO_setupDebugPin( );
-#define TEST_port                   GPIOC
-#define TEST_pin                    GPIO_PIN_3
-
 //below untested ...
 #define NEXT_TEST_BUTTON_PORT       GPIOC
 #define NEXT_TEST_BUTTON_PIN        GPIO_PIN_1
+
+// test pin
+// rename timing debug pin?
+// init by GPIO_setupDebugPin( );
+#define LOGICANALYSER_port          GPIOC
+#define LOGICANALYSER_pin           GPIO_PIN_3
+
+//SPI DAC CS
+#define DAC_CS_port                 GPIOC
+#define DAC_CS_pin                  GPIO_PIN_4
 
 //SPI uC
 #define SPI_PORT                    GPIOC
@@ -44,11 +48,7 @@
 #define SPI_MOSI                    GPIO_PIN_6
 #define SPI_MISO                    GPIO_PIN_7
 
-//SPI DAC
-#define DAC_CS_port                 GPIOC
-#define DAC_CS_pin                  GPIO_PIN_4
-
-//SPI RAM
+//SPI RAM CS
 #define RAM_CS_port                 GPIOA
 #define RAM_CS_pin                  GPIO_PIN_1
 
@@ -69,7 +69,8 @@
 #define ADC_ELSE_pin                GPIO_PIN_4 // not used so far
 #define ADC_ELSE                    4
 
-#define ADC_Multichannel_pins       ((GPIO_Pin_TypeDef)( ADC_LEFTCHANNEL_IN_pin | ADC_FEEDBACK_AMOUNT_pin | ADC_DELAY_LENGTH_pin | ADC_DRYWETMIX_pin ))
+#define ADC_Multichannel_pins       ((GPIO_Pin_TypeDef)( ADC_LEFTCHANNEL_IN_pin \
+| ADC_FEEDBACK_AMOUNT_pin | ADC_DELAY_LENGTH_pin | ADC_DRYWETMIX_pin ))
 
 #define NUM_Of_ADCPOT_SAMPLES       4
 

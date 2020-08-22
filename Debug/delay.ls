@@ -15,13 +15,13 @@
   83  000a cd0000        	call	c_ftoi
   86  000d 2002          	jra	L74
   87  000f               L34:
-  88                     ; 24         _asm ("nop");
+  88                     ; 24         _asm ( "nop" );
   91  000f 9d            	nop	
   93                     ; 25         loops--;
   95  0010 5a            	decw	x
   96  0011               L74:
   97  0011 1f01          	ldw	(OFST-1,sp),x
-  99                     ; 22     while(loops)
+  99                     ; 22     while( loops )
  101  0013 26fa          	jrne	L34
  102                     ; 27 }
  106  0015 85            	popw	x
@@ -34,7 +34,7 @@
  147       00000000      OFST:	set	0
  150  0018 200a          	jra	L37
  151  001a               L17:
- 152                     ; 33         delay_us(1000);
+ 152                     ; 33         delay_us( 1000 );
  154  001a ae03e8        	ldw	x,#1000
  155  001d ad0b          	call	_delay_us
  157                     ; 34         value--;
@@ -42,7 +42,7 @@
  160  0021 5a            	decw	x
  161  0022 1f01          	ldw	(OFST+1,sp),x
  162  0024               L37:
- 163                     ; 31     while(value)
+ 163                     ; 31     while( value )
  165  0024 1e01          	ldw	x,(OFST+1,sp)
  166  0026 26f2          	jrne	L17
  167                     ; 36 }
@@ -54,31 +54,31 @@
  213  002a               _delay_us:
  215  002a 89            	pushw	x
  216       00000000      OFST:	set	0
- 219                     ; 43     TIM4_DeInit();
+ 219                     ; 43     TIM4_DeInit( );
  221  002b cd0000        	call	_TIM4_DeInit
- 223                     ; 45     if((us <= 200) && (us >= 0))
+ 223                     ; 45     if(( us <= 200 ) && ( us >= 0 ))
  225  002e 1e01          	ldw	x,(OFST+1,sp)
  226  0030 a300c9        	cpw	x,#201
  227  0033 2405          	jruge	L511
- 228                     ; 47         TIM4_TimeBaseInit(TIM4_PRESCALER_16, 200);
+ 228                     ; 47         TIM4_TimeBaseInit( TIM4_PRESCALER_16, 200 );
  230  0035 ae04c8        	ldw	x,#1224
- 232                     ; 48         TIM4_Cmd(ENABLE);
+ 232                     ; 48         TIM4_Cmd( ENABLE );
  235  0038 2041          	jp	LC001
  236  003a               L511:
- 237                     ; 50     else if((us <= 400) && (us > 200))
+ 237                     ; 50     else if(( us <= 400 ) && ( us > 200 ))
  239  003a a30191        	cpw	x,#401
  240  003d 240e          	jruge	L121
  242  003f a300c9        	cpw	x,#201
  243  0042 2509          	jrult	L121
  244                     ; 52         us >>= 1;
  246  0044 0401          	srl	(OFST+1,sp)
- 247                     ; 53         TIM4_TimeBaseInit(TIM4_PRESCALER_32, 200);
+ 247                     ; 53         TIM4_TimeBaseInit( TIM4_PRESCALER_32, 200 );
  249  0046 ae05c8        	ldw	x,#1480
  250  0049 0602          	rrc	(OFST+2,sp)
- 252                     ; 54         TIM4_Cmd(ENABLE);
+ 252                     ; 54         TIM4_Cmd( ENABLE );
  255  004b 202e          	jp	LC001
  256  004d               L121:
- 257                     ; 56     else if((us <= 800) && (us > 400))
+ 257                     ; 56     else if(( us <= 800 ) && ( us > 400 ))
  259  004d a30321        	cpw	x,#801
  260  0050 2413          	jruge	L521
  262  0052 a30191        	cpw	x,#401
@@ -90,12 +90,12 @@
  269  005b 0602          	rrc	(OFST+2,sp)
  270  005d 4a            	dec	a
  271  005e 26f9          	jrne	L62
- 272                     ; 59         TIM4_TimeBaseInit(TIM4_PRESCALER_64, 200);
+ 272                     ; 59         TIM4_TimeBaseInit( TIM4_PRESCALER_64, 200 );
  274  0060 ae06c8        	ldw	x,#1736
- 276                     ; 60         TIM4_Cmd(ENABLE);
+ 276                     ; 60         TIM4_Cmd( ENABLE );
  279  0063 2016          	jp	LC001
  280  0065               L521:
- 281                     ; 62     else if((us <= 1600) && (us > 800))
+ 281                     ; 62     else if(( us <= 1600 ) && ( us > 800 ))
  283  0065 a30641        	cpw	x,#1601
  284  0068 2419          	jruge	L531
  286  006a a30321        	cpw	x,#801
@@ -107,24 +107,24 @@
  293  0073 0602          	rrc	(OFST+2,sp)
  294  0075 4a            	dec	a
  295  0076 26f9          	jrne	L43
- 296                     ; 65         TIM4_TimeBaseInit(TIM4_PRESCALER_128, 200);
+ 296                     ; 65         TIM4_TimeBaseInit( TIM4_PRESCALER_128, 200 );
  298  0078 ae07c8        	ldw	x,#1992
- 300                     ; 66         TIM4_Cmd(ENABLE);
+ 300                     ; 66         TIM4_Cmd( ENABLE );
  302  007b               LC001:
  303  007b cd0000        	call	_TIM4_TimeBaseInit
  307  007e a601          	ld	a,#1
  308  0080 cd0000        	call	_TIM4_Cmd
  310  0083               L531:
- 311                     ; 69     while(TIM4_GetCounter() < us);
+ 311                     ; 69     while( TIM4_GetCounter( ) < us );
  313  0083 cd0000        	call	_TIM4_GetCounter
  315  0086 5f            	clrw	x
  316  0087 97            	ld	xl,a
  317  0088 1301          	cpw	x,(OFST+1,sp)
  318  008a 25f7          	jrult	L531
- 319                     ; 70     TIM4_ClearFlag(TIM4_FLAG_UPDATE);
+ 319                     ; 70     TIM4_ClearFlag( TIM4_FLAG_UPDATE );
  321  008c a601          	ld	a,#1
  322  008e cd0000        	call	_TIM4_ClearFlag
- 324                     ; 71     TIM4_Cmd(DISABLE);
+ 324                     ; 71     TIM4_Cmd( DISABLE );
  326  0091 4f            	clr	a
  327  0092 cd0000        	call	_TIM4_Cmd
  329                     ; 72 }
@@ -138,11 +138,11 @@
  373       00000000      OFST:	set	0
  376  0098 2005          	jra	L161
  377  009a               L751:
- 378                     ; 80         delay_us(1000);
+ 378                     ; 80         delay_us( 1000 );
  380  009a ae03e8        	ldw	x,#1000
  381  009d ad8b          	call	_delay_us
  383  009f               L161:
- 384                     ; 78     while(ms--)
+ 384                     ; 78     while( ms-- )
  386  009f 1e01          	ldw	x,(OFST+1,sp)
  387  00a1 5a            	decw	x
  388  00a2 1f01          	ldw	(OFST+1,sp),x

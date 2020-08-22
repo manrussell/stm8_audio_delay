@@ -42,7 +42,7 @@
 #include "mcp4901_spi_dac.h"
 #include "mcp_23k256_spi_ram.h"
 
-#define RUN_TESTS   1
+#define RUN_TESTS
 #if defined RUN_TESTS
 #   include "tests_hw.h"
 #endif /* RUN_TESTS */
@@ -72,10 +72,10 @@ void main( void )
 
     uint16_t delay_length_samples[ NUM_Of_ADCPOT_SAMPLES ] = { 0 }; // 4 samples of the pot are calculated
 
-#if RUN_TESTS
+#if defined RUN_TESTS
     TEST_run_all_tests( );
 #endif /* RUN_TESTS */
-
+    disableInterrupts( );
     CLOCK_setup( ); /* setup 16MHz CPU frq and peripheral enable clock */
     GPIO_setupDebugPin( ); /* what is this ?*/
     ADC1_setupMultiChannel( );
@@ -84,6 +84,7 @@ void main( void )
     MCP_23K256_RAM_set_all( 0 );
     MCP4901_DAC_init( );
     TIM2_setupTimerInterrupt( ); /* for event driven machine. */
+    enableInterrupts( );
 
   /* Infinite loop */
   while( 1 )
@@ -134,7 +135,7 @@ void TIM2_setupTimerInterrupt( void )
   TIM2_TimeBaseInit( TIM2_PRESCALER_1, 1451 );
   TIM2_ITConfig( TIM2_IT_UPDATE, ENABLE );
   TIM2_Cmd( ENABLE );
-  enableInterrupts( );
+  //enableInterrupts( );
 }
 
 /* Used to time functions using a logic ananylser. */
@@ -142,7 +143,7 @@ void TIM2_setupTimerInterrupt( void )
 void GPIO_setupDebugPin( void )
 {
     //GPIO_Init( LED_port, LED_pin, GPIO_MODE_OUT_PP_HIGH_FAST );
-    GPIO_Init( TEST_port, TEST_pin, GPIO_MODE_OUT_PP_HIGH_FAST );
+    GPIO_Init( LOGICANALYSER_port, LOGICANALYSER_pin, GPIO_MODE_OUT_PP_HIGH_FAST );
 }
 
 /*

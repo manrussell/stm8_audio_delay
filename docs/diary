@@ -19,6 +19,21 @@ Review...
    
 ToDo.
 *)
+Wire in test button, HW debunce?
+Wire in extInt pin ... 
+    Pull extInt pin high using pull up internal pull up?
+    Hw pulls pin low?
+  GPIO_MODE_IN_PU_IT         = (uint8_t)0x60,  /*!< Input pull-up, external interrupt */
+
+
+*)
+SPI needs fixing, weird MISO -> is this just logic analyser effecting signal?
+why no MISO?
+
+*)
+DAC do i send a message over spi taking my time, and then toggle latch pin using the timer? more accurate doodah. 
+
+*)
 Do the tests work?
 -> ( Does the button work )
 How do they work?
@@ -46,6 +61,10 @@ re-do requirements.
     #define TEST_port                   GPIOC
     #define TEST_pin                    GPIO_PIN_3
 
+    //below untested ...
+    #define NEXT_TEST_BUTTON_PORT       GPIOC
+    #define NEXT_TEST_BUTTON_PIN        GPIO_PIN_1
+
 review out come.
     .led is not used
     .rename TEST_port/pin to timing_debugPin
@@ -67,11 +86,9 @@ done RAM and DAC
     re-define the functions names to remove specific component names in test functions
 
 *)
-SPI DAC weird trace no data sent.
-
-*)
-check freq of TIM2_UPD_IRQHandler( )
+update freq of TIM2_UPD_IRQHandler( )
 this should be 11025Hz * 10 , for state machine
+
 
 *)
 Documentation / website
@@ -79,6 +96,7 @@ Documentation / website
 
 *)
 what about that delay_us( 1 ) in spi for CS pin?
+Do the flags work? 
 
 *)
 GPIO_setupDebugPin( );
@@ -92,15 +110,11 @@ GPIO_setupDebugPin( );
  whats going on? this is sometmes uesd, do i even need it now? -> test buttton extInt 
 
 *)
+Almost done.
 Some code is snake case some code is camel case, use camel case
 
 *)
 mcli ...
-
-
-
-
-
 
 
 

@@ -11,7 +11,7 @@
 #define WRSR        0x01            // Write Status register
 
 // STATUS REGISTER
-#define NUM_OF_SPI_MODES    3
+#define NUM_OF_SPI_MODES    4 //wasts a space by going back to normal read mode
 #define BYTE_MODE   0x00
 #define PAGE_MODE   0x80
 #define SEQ_MODE    0x40
@@ -29,7 +29,7 @@ void MCP_23K256_RAM_set_all( unsigned char value );
 /*
 Redefined sa HW tests and main program are component agnostic
 */
-#define RAM_init( )                    MCP_23K256_RAM_init( )
+#define RAM_init( )                    		MCP_23K256_RAM_init( )
 #define RAM_read_status_register( data )    MCP_23K256_RAM_read_status_register( data )
 #define RAM_write_status_register( data )   MCP_23K256_RAM_write_status_register( data )
 #define RAM_write_byte( address, value )    MCP_23K256_RAM_write_byte( address, value )

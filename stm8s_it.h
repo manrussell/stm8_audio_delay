@@ -31,7 +31,7 @@
 
 //@far @interrupt void TIM2_UPD_OVF_BRK_IRQHandler(void);
 @far @interrupt void TIM2_UPD_IRQHandler(void);
-@far @interrupt void EXTI1_IRQHandler(void);
+@far @interrupt void EXTI2_IRQHandler(void);
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm8s.h"

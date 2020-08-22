@@ -63,7 +63,7 @@ extern uint16_t delay          ;   // length of delay in samples
 void TIM2_UPD_IRQHandler( void )
 {
     // use gpio to display time of each state
-    GPIO_WriteHigh( TEST_port, TEST_pin );
+    GPIO_WriteHigh( LOGICANALYSER_port, LOGICANALYSER_pin );
     
     TIM2_ClearFlag( TIM2_FLAG_UPDATE );
     
@@ -82,8 +82,8 @@ void TIM2_UPD_IRQHandler( void )
             ADC1_StartConversion( );
             while( ADC1_GetFlagStatus( ADC1_FLAG_EOC ) == FALSE );
             ADC1_ClearFlag( ADC1_FLAG_EOC );
-            //adc_leftChannel = ADC1_GetBufferValue( 0 ); //ADC_LEFTCHANNEL );
-            adc_delay  = ADC1_GetBufferValue( 1 ); //ADC_FEEDBACK_AMOUNT );
+            //adc_leftChannel = ADC1_GetBufferValue( 0 ); // ADC_LEFTCHANNEL );
+            adc_delay  = ADC1_GetBufferValue( 1 ); // ADC_FEEDBACK_AMOUNT );
             //adc_delay = ADC1_GetBufferValue( ADC_DELAY_LENGTH );
 
             //ADC1_ClearFlag( ADC1_FLAG_EOC );
@@ -116,7 +116,7 @@ void TIM2_UPD_IRQHandler( void )
             }
             
             //read from ram
-            MCP_23K256_RAM_read_byte( read_addr, &read_val );            
+            RAM_read_byte( read_addr, &read_val );            
             break;
         case 8:
             /* Sample Audio ADC, process, write to DAC */
@@ -145,11 +145,11 @@ void TIM2_UPD_IRQHandler( void )
             }
             
             // write value to dac
-            MCP4901_DAC_write( mapd_value ); 
+            DAC_write( mapd_value ); 
             break;
         case 9:
             //write to ram
-            MCP_23K256_RAM_write_byte( write_addr, mapd_value );
+            RAM_write_byte( write_addr, mapd_value );
             
             //increment write pointer
             write_addr++;
@@ -163,11 +163,11 @@ void TIM2_UPD_IRQHandler( void )
     state++;
     if ( 10 <= state ) state = 0;
     
-    GPIO_WriteLow(TEST_port, TEST_pin);
+    GPIO_WriteLow( LOGICANALYSER_port, LOGICANALYSER_pin );
 }
 
 extern uint8_t  testIncomplete;
-void EXTI1_IRQHandler( void )
+void EXTI2_IRQHandler( void )
 {
     testIncomplete = 0;
 }
